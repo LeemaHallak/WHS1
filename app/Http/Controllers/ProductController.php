@@ -10,13 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
     public function CatProducts($category_id)
     {
@@ -49,6 +42,7 @@ class ProductController extends Controller
 
         ]);   
     }
+
     public function showProductDetails($id)
     {
         $productDetails = Product::where('id',$id)->first();
@@ -58,26 +52,8 @@ class ProductController extends Controller
         ]);
     }
 
-    public function RemoveProduct($id)
-    {
-        $product = Product::query()->find($id)->delete();
-        return http_response_code();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        
         $image_name_to_store = 'default.png';
         if ($request->hasFile('image'))
         {
@@ -107,9 +83,8 @@ class ProductController extends Controller
         return response()->json([$product,201]);
     }
 
-    public function storeAss(Request $request)
+    public function storeAssis(Request $request)
     {
-        
         $image_name_to_store = 'default.png';
         if ($request->hasFile('image'))
         {
@@ -119,7 +94,6 @@ class ProductController extends Controller
             $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
             $request->file('image')->storeAs('public/images',$image_name_to_store);
         }
-
         $product = ProductAssis::query()->create([
             'product_name'=> $request->input('product_name'),
             'InnerCategory_id'=> $request->input('Inner_Category_id'),
@@ -137,36 +111,5 @@ class ProductController extends Controller
             'image'=>$image_name_to_store,
         ]);
         return response()->json([$product,201]);
-    }
-    /**
-     * Display the specified resource.
-     */
-    public function show(product $product)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(product $product)
-    {
-        //
     }
 }

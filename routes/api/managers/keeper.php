@@ -52,10 +52,11 @@ Route:: prefix('/keeper')->group( function (){
                     Route::post('/newEquipment', [EquipmentController::class, 'AddNewEquipments']);
                     Route::post('/AddNewProduct',[ProductController::class,'store']);
                     Route::post('/Addcategories',[CategoryController::class, 'AddCat']);
-                    Route::post('/keeperAddShipment',[ShipmentController::class, 'keeperAddShipment']);
+                    Route::post('/AddShipment',[ShipmentController::class, 'keeperAddShipment']);
                     Route::post('/storeProduct',[BranchesProductsController::class, 'storeProduct']);
                     Route::post('/costs', [CostController::class, 'addCost']); //N
                     Route::post('/innerTransaction', [InnerTransactionController::class, 'addInnerTransaction']); //N
+                    Route::post('/addlocation',[StoringLocationsController::class, 'store']); 
                 });
                 Route:: prefix('/show')->group( function (){
                     Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
@@ -102,7 +103,8 @@ Route:: prefix('/keeper')->group( function (){
                     Route::get('productsByproduct/In/{type}', 'InProductsByProducts');
                     Route::get('products/Out/{type}', 'OutProductsStatistics');
                     Route::get('OrderIncomings/{type}', 'ordersIncomings');
-                });
+                    Route::get('/earnings', 'earningsStatistics');
+                }); 
             
             }
         );

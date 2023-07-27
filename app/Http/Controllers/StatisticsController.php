@@ -209,47 +209,57 @@ class StatisticsController extends Controller
         }
     }
 
-    public function earningsStatistics($type)
+    public function earningsStatistics()
     {
         $manager = auth()->guard('manager-api')->user();
         $employee = $manager->employee;
         $branch_id = $employee->branch_id;
-
-        if($type == 'daily'){
+        
         $costs = Cost::where('branch_id', $branch_id)
-                ->groupBy('date')
-                ->select('date', DB::raw('SUM(cost) as total_cost'))
+                ->selectRaw('MONTH(date), SUM(cost) as total_cost')
+                ->groupBy('MONTH(date)')
                 ->get();
         $equipment_costs = BranchesEquipments::where('branch_id', $branch_id)
-                            ->groupBy('date_in')
-                            ->select('date_in', DB::raw('SUM(cost) as total_cost'))
+                            ->selectRaw('MONTH(date_in), SUM(cost) as total_cost')
+                            ->groupBy('MONTH(date_in)')
                             ->get();
-        $EqFixing_costs = EquipmentFix::whereHas('branchEquipment',
+        $EqFixing_costs = EquipmentFix::whereHas('branches_equipments',
                             function ($query) use ($branch_id){
                             $query->where('branch_id', $branch_id);
                             })
-                            ->groupBy('fix_date')
-                            ->select('fix_date', DB::raw('SUM(fixing_cost) as total_cost'))
+                            ->selectRaw('MONTH(fix_date), SUM(fixing_cost) as total_cost')
+                            ->groupBy('MONTH(fix_date)')
                             ->get();
-        $transaction_costs = InnerTransaction::where('branch_id', $branch_id)
-                            ->groupBy('transaction_date')
-                            ->select('transaction_date', DB::raw('SUM(transaction_date) as total_cost'))
+        $transaction_costs = InnerTransaction::where('DestinationBranch_id', $branch_id)
+                            ->selectRaw('MONTH(transaction_date), SUM(transaction_date) as total_cost')
+                            ->groupBy('MONTH(transaction_date)')
                             ->get();
-        $total_costs = $costs + $equipment_costs + $EqFixing_costs + $transaction_costs;
+        $total_costs = $costs->sum('total_cost')
+                        + $equipment_costs->sum('total_cost')
+                        + $EqFixing_costs->sum('total_cost')
+                        + $transaction_costs->sum('total_cost');
 
-        $orders = Order::select([
-            DB::raw('DATE(orders.order_date) as day'),
-            DB::raw('SUM(order_lists.order_cost) as total_cost')
-            ])->join('order_lists','orders.OrderList_id','=','order_lists.id')
+        $orders = Order::selectRaw(
+            'MONTH(orders.order_date) as month,
+            SUM(order_lists.order_cost) as total_cost')
+            ->join('order_lists','orders.OrderList_id','=','order_lists.id')
             ->where('branch_id', $branch_id)
-            ->groupBy('day')
-            ->orderBy('day', 'asc')
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
             ->get();
-        }
+            
         $total_salaries = Employee::where('branch_id', $branch_id)->sum('salary');
+        $earnings = $orders->sum('total_cost') - $total_salaries - $total_costs;
 
-        $earnings = $orders - $total_salaries - $total_costs;
         return response()->json([
+            'branch'=> $branch_id,
+            'costs' => $costs,
+            'equipment costs'=>$equipment_costs,
+            'Equipment fixing costs'=>$EqFixing_costs,
+            'transactions costs'=>$transaction_costs,
+            'total costs'=>$total_costs,
+            'orders'=>$orders,
+            'total salaries'=> $total_salaries,
             'data'=>$earnings,
             'status code'=>201,
         ]);

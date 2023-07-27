@@ -99,7 +99,7 @@ class EquipmentController extends Controller
     }
 
     
-    public function showEquipments($branch_id, Request $request)
+    public function showEquipment($branch_id, Request $request)
     {
 
         $getBy = $request->input('get_by');
@@ -134,13 +134,12 @@ class EquipmentController extends Controller
                     'status code'=> http_response_code(),
                 ]);
             }
-            return response()->json(
-                // 'Equipments'=>$GetEquipment,
-                // 'total quantities in this lot' => $LotQuantity,
-                // 'total cost for this purchase lot '=> $LotCost,
-                // 'status code'=> http_response_code(),
-                $data
-            );
+            return response()->json([
+                'Equipments'=>$GetEquipment,
+                'total quantities in this lot' => $LotQuantity,
+                'total cost for this purchase lot '=> $LotCost,
+                'status code'=> http_response_code(),
+            ]);
         }
 
         if ($getBy == 'name'){
@@ -148,12 +147,11 @@ class EquipmentController extends Controller
             $GetEquipment = $Equipment->get();
             $EquipmentQuantity = $Equipment->sum('quantity');
             $data = [$GetEquipment,$EquipmentQuantity];
-            return response()->json(
-                // 'Equipments'=>$GetEquipment,
-                // 'total quantities' => $EquipmentQuantity,
-                // 'status code'=> http_response_code(),
-                $data
-            );
+            return response()->json([
+                'Equipments'=>$data,
+                'total quantities' => $EquipmentQuantity,
+                'status code'=> http_response_code(),
+            ]);
         }
 
         elseif ($getBy == null ){
@@ -268,6 +266,17 @@ class EquipmentController extends Controller
             'status code' => http_response_code(),
         ]);
     }
+
+    public function editBranchEquipment($BranchEquipment_id)
+    {
+        $equipment = BranchesEquipments::find($BranchEquipment_id);
+        if (!$equipment) {
+            return response()->json([
+                'error' => 'equipment not found'
+            ], 404);
+        }
+    }
+
     public function editEquipment(Request $request, int $id): JsonResponse
     {
         $equipment = Equipment::find($id);
@@ -289,56 +298,5 @@ class EquipmentController extends Controller
         return response()->json([
             'message' => 'equipment updated successfully'
         ]);
-    }
-    public function editBranchEquipment(Request $request, int $id): JsonResponse
-    {
-        $equipment = Equipment::with('branches_equipments')->find($id);
-
-        if (!$equipment) {
-            return response()->json([
-                'error' => 'Equipment not found'
-            ], 404);
-        }
-
-        $validatedData = $request->validate([
-            'equipment_name' => 'nullable',
-            'description' => 'nullable',
-            'branches_equipments' => 'nullable|array',
-            'branches_equipments.*.branch_id' => 'nullable|exists:branches,id',
-            'branches_equipments.*.employee_id' => 'nullable|exists:employees,id',
-            'branches_equipments.*.quantity' => 'nullable|integer',
-            'branches_equipments.*.cost' => 'nullable|numeric',
-            'branches_equipments.*.date_in' => 'nullable|date',
-            'branches_equipments.*.available' => 'nullable',
-        ]);
-
-        $equipment->fill($validatedData);
-        $equipment->save();
-
-        if (isset($validatedData['branches_equipments'])) {
-            $branchesData = [];
-
-            foreach ($validatedData['branches_equipments'] as $branchData) {
-                $branchesData[$branchData['branch_id']] = [
-                    'employee_id' => $branchData['employee_id'],
-                    'quantity' => $branchData['quantity'],
-                    'cost' => $branchData['cost'],
-                    'date_in' => $branchData['date_in'],
-                    'available' => $branchData['available'],
-                ];
-            }
-
-            $equipment->branches_equipments()->sync($branchesData);
-        }
-
-        return response()->json([
-            'message' => 'Equipment updated successfully'
-        ]);
-    }
-
-    public function RemoveEquipment($id)
-    {
-        Equipment::query()->find($id)->delete();
-        return http_response_code();
     }
 }

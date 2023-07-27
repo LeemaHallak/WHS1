@@ -32,20 +32,19 @@ trait MustBeApproved
             if (self::approvalModelExists($model)) {
                 return false;
             }
-
+            //$responsibleManager = 0;
             $manager = auth()->guard('manager-api')->user();
+            $role = $manager->role_id;
             $employee = $manager->employee;
             $branch_id = $employee->branch_id;
             $branch = Branch::find($branch_id);
             $responsibleManager = $branch->managers()->where('role_id', 1)->first();
             $responsibleManager = $responsibleManager->id;
-
             $model->approvals()->create([
                 'ResponsibleManager_id' => $responsibleManager,
                 'new_data' => $model->getDirty(),
                 'original_data' => $model->getOriginalMatchingChanges(),
             ]);
-
             return false;
         }
     }

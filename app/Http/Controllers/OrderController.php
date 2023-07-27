@@ -31,8 +31,6 @@ class OrderController extends Controller
      */
     public function order(Request $request)
     {
-        $this->authorize('add Order');
-
         $OrderList_id = $request->OrderList_id;
         $shipment_id = $request->shipment_id;
         $order_date = $request->date;
@@ -131,27 +129,4 @@ class OrderController extends Controller
         return http_response_code();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(order $order)
-    {
-        //
-    }
 }

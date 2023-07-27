@@ -30,9 +30,9 @@ class ProductFactory extends Factory
             'Supplier_id'=>User::factory()->create()->id,
             'image'=>fake()->text(),
             'weight'=>fake()->numberBetween(10.0,1000.0),
-            'WUnit_id'=>Unit::factory()->create()->id,
+            'WUnit'=>fake()->randomElement(['KG', 'G']),
             'size'=>fake()->numberBetween(10.0,1000.0),
-            'SUnit_id'=>Unit::factory()->create()->id,
+            'SUnit'=>fake()->randomElement(['M', 'CM']),
             'box_quantity'=>fake()->numberBetween(10,1000),
         ];
     }

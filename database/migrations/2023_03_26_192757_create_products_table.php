@@ -22,9 +22,11 @@ return new class extends Migration
             $table->foreignId('Supplier_id')->constrained('users');
             $table->string('image');
             $table->double('weight');
-            $table->foreignId('WUnit_id')->constrained('units');
+            $table->string('WUnit');
+            $table->foreign('WUnit')->references('unit_name')->on('units');
             $table->double('size');
-            $table->foreignId('SUnit_id')->constrained('units');
+            $table->string('SUnit');
+            $table->foreign('SUnit')->references('unit_name')->on('units');
             $table->integer('box_quantity');
             $table->timestamps();
         });

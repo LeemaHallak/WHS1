@@ -36,12 +36,7 @@ class OrderListController extends Controller
         
         $role = auth()->guard('manager-api')->user()->role_id;
         $customer = $request->customer;
-        if($role == 1){
-            $customer_id = $customer;
-        }
-        else {
-            $customer_id = Auth::id();
-        }
+        $customer_id = ($role == 1) ? $customer : Auth::id();
         $OrderList = OrderList::query()->create([
             'customer_id' => $customer_id,
             'branch_id'=>null,
@@ -60,9 +55,6 @@ class OrderListController extends Controller
         return response()->json(['data'=>$updtaing,'status code'=>200]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function showOrderLists($id)
     {
         $orders = Order::with('OrderList.customers')->where('shipment_id',$id)->get();
@@ -79,27 +71,4 @@ class OrderListController extends Controller
             
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrderList $orderList)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrderList $orderList)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrderList $orderList)
-    {
-        //
-    }
 }

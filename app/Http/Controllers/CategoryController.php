@@ -103,13 +103,10 @@ class CategoryController extends Controller
             'category_name'=> $request->input('category_name'),
             'parent_id'=>$request->input('parent_id'),
         ]);
-        return response()->json([$Category,201]);
-    }
 
-    public function RemoveCat($id)
-    {
-        $category = Category::query()->find($id)->delete();
-        return http_response_code();
+        // $Category->withoutApproval();
+
+        return response()->json([$Category,201]);
     }
 
     /**
@@ -143,6 +140,28 @@ class CategoryController extends Controller
     
         return response()->json([
             'message' => 'category updated successfully'
+        ]);
+    }
+    public function Assistant_editCategory(Request $request, int $id): JsonResponse
+    {
+        $category = CategoryAssis::find($id);
+    
+        if (!$category) {
+            return response()->json([
+                'error' => 'category not found'
+            ], 404);
+        }
+    
+        $validatedData = $request->validate([
+            'category_name' => 'nullable',
+            'parent_id' => 'nullable',
+        ]);
+    
+        $category->fill($validatedData);
+        $category->save();
+    
+        return response()->json([
+            'message' => 'waiting for the keeper aprove...'
         ]);
     }
 

@@ -14,10 +14,10 @@ class Unit extends Model
     
     public function weight()
     {
-        return $this->hasMany(Product::class, 'WUnit_id');
+        return $this->hasMany(Product::class, 'WUnit');
     }
     public function size()
     {
-        return $this->hasMany(Product::class, 'SUnit_id');
+        return $this->hasMany(Product::class, 'SUnit');
     }
 }

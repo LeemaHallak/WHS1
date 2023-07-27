@@ -35,12 +35,25 @@ Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(
     Route::group([ 
         'middleware'=>'assistant',], function(){
             Route:: prefix('/Add')->group( function (){
-                Route::post('/exequipApprove/{id}',  [EquipmentController::class, 'AddExistingEquipmentAssis' ] );
-                Route::post('/productAdd_Assistant',[ProductController::class,'storeAss']);
+                Route::post('/exequipApprove/{equipment_id}',  [EquipmentController::class, 'AddExistingEquipmentAssis' ] );
+                Route::post('/Asisstant_AddNewProduct',[ProductController::class,'storeAssis']);
+                Route::post('/Assistant_storeProduct',[BranchesProductsController::class,'Assistant_storeProduct']);
                 Route::post('/Ass_Addcategories',[CategoryController::class, 'approveAddCat']);
             });
 //AddExistingEquipmentAssis
             Route:: prefix('/show')->group( function (){
+                Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
+                Route::get('/BranchManagers/{branch_id}/{role_id}',[EmployeeController::class, 'ShowBranchesAssistants']);
+                Route::get('/EmployeesDetails/{emp_id}',[EmployeeController::class, 'showDetails']);
+                Route::get('showProductDetails/{id}',[ProductController::class,'showProductDetails']);
+                Route::get('showShipments',[ShipmentController::class,'showShipments']);
+                Route::get('ShipmentDetails/{id}',[ShipmentController::class,'ShipmentDetails']);
+                Route::get('showOrderLists/{id}',[OrderListController::class,'showOrderLists']);
+                Route::get('showOrderProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
+        });
+        Route::prefix('/edit')->group(function(){
+            Route::post('/Assistant_editProduct/{id}',[BranchesProductsController::class, 'Assistant_editProduct']);
+            Route::post('/Assistant_editCategory/{id}',[CategoryController::class, 'Assistant_editCategory']);
         });
         }
     );

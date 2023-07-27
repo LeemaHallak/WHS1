@@ -10,25 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderProductsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $this->authorize('add Order_Product');
@@ -123,46 +105,19 @@ class OrderProductsController extends Controller
         return http_response_code();
     }
 
-    /**
-     * Display the specified resource.
-     */
-
-public function showOrderProducts($Order_list_id)
-{
-    $products = OrderProducts::join('branches_products', 'order_products.BranchesProducts_id', '=', 'branches_products.id')
-        ->join('products', 'branches_products.product_id', '=', 'products.id')
-        ->where('OrderList_id', $Order_list_id)
-        ->select('order_products.quantity', 'order_products.total_price', 'branches_products.price', 'products.product_name')
-        ->get();
-
-    if ($products->isNotEmpty()) {
-        return response()->json($products, 200);
-    } 
-    else {
-        return response()->json(['message' => 'no products to show']);
-    }
-}
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrderProducts $orderProducts)
+    public function showOrderProducts($Order_list_id)
     {
-        //
-    }
+        $products = OrderProducts::join('branches_products', 'order_products.BranchesProducts_id', '=', 'branches_products.id')
+            ->join('products', 'branches_products.product_id', '=', 'products.id')
+            ->where('OrderList_id', $Order_list_id)
+            ->select('order_products.quantity', 'order_products.total_price', 'branches_products.price', 'products.product_name')
+            ->get();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrderProducts $orderProducts)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrderProducts $orderProducts)
-    {
-        //
+        if ($products->isNotEmpty()) {
+            return response()->json($products, 200);
+        } 
+        else {
+            return response()->json(['message' => 'no products to show']);
+        }
     }
 }
