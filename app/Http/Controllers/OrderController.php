@@ -10,25 +10,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function order(Request $request)
     {
         $OrderList_id = $request->OrderList_id;
@@ -77,12 +59,15 @@ class OrderController extends Controller
         
     }
 
-    public function ShowOrders(order $order)
+    public function ShowOrders($branchId =null)
     {
         $manager = auth()->guard('manager-api')->user();
-        $employee = $manager->employee;
-        $branch_id = $employee->branch_id;
-        $branch = Branch::find($branch_id);
+        $role = $manager->role_id;
+        if($role == 1){
+            $employee = $manager->employee;
+            $branchId = $employee->branch_id;
+        }
+        $branch = Branch::find($branchId);
         $order = $branch->orders()->with('OrderList')->get();
         return response()->json([
             'orders'=>$order,
@@ -90,13 +75,23 @@ class OrderController extends Controller
         ]);
     }
 
-    public function ShowShipmentOrders(order $order, $shipment_id)
+    public function ShowShipmentOrders($shipmentId, $branchId = null)
     {
         $manager = auth()->guard('manager-api')->user();
-        $employee = $manager->employee;
-        $branch_id = $employee->branch_id;
-        $branch = Branch::find($branch_id);
-        $order = $branch->orders()->with('OrderList')->where('shipment_id', $shipment_id)->get();
+        $role = $manager->role_id;
+        if($role == 1){
+            $employee = $manager->employee;
+            $branchId = $employee->branch_id;
+        }
+        if(!$branchId){
+            $orders = Order::with('OrderList')->where('shipment_id', $shipmentId)->get();
+            return response()->json([
+                'orders'=>$orders,
+                'stauts code'=>http_response_code(),
+            ]);
+        }
+        $branch = Branch::find($branchId);
+        $order = $branch->orders()->with('OrderList')->where('shipment_id', $shipmentId)->get();
         return response()->json([
             'orders'=>$order,
             'stauts code'=>http_response_code(),
@@ -123,10 +118,5 @@ class OrderController extends Controller
         }
     }
 
-    public function RemoveOrder($id)
-    {
-        $order = Order::query()->find($id)->delete();
-        return http_response_code();
-    }
 
 }

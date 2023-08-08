@@ -20,9 +20,9 @@ class BranchesEquipmentsFactory extends Factory
     public function definition(): array
     {
         return [
-            'employee_id'=>Employee::factory()->create()->id,
-            'branch_id'=>Branch::factory()->create()->id,
-            'equipment_id'=>Equipment::factory()->create()->id,
+            'employee_id'=>fake()->numberBetween(1,10),
+            'branch_id'=>fake()->numberBetween(1,10),
+            'equipment_id'=>fake()->numberBetween(1,10),
             'quantity'=>fake()->numberBetween(1,100),
             'cost'=>fake()->numberBetween(100.0,1000.0),
             'date_in'=>fake()->date(),

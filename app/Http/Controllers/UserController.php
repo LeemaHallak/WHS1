@@ -16,7 +16,7 @@ class UserController extends Controller
 
     public function AddCustomer(Request $request )
     {
-        $this->authorize('addCustomer');
+        //$this->authorize('addCustomer');
         $this-> validate($request, [
             'customer_name'=> 'required | string',
             'email'=>'required | email',
@@ -26,7 +26,6 @@ class UserController extends Controller
             'company_register' => 'required ',
             'industry_register'=> 'required',
             'is_ProducingCompany' => 'boolean',
-            'role_id'=> 'required ',
         ]);
             $register_inputs = $request->all();
             $register_inputs['password'] = Hash::make($register_inputs['password']);
@@ -40,6 +39,26 @@ class UserController extends Controller
             'typeToken' => 'Bearer',
             'token' => $accessToken->accessToken
             ]);
+    }
+
+    public function showCustomers( Request $request, $getBy = null)
+    {
+        $customers = User::query();
+        if($getBy == 'name'){
+            $name = $request->name;
+            $customers = $customers->where('customer_name', $name)->get();
+        }
+        if($getBy == 'address'){
+            $address = $request->address;
+            $customers = $customers->where('address_id', $address)->get();
+        }
+        if($getBy == null){ 
+            $customers = $customers->get();
+        }
+        return response()->json([
+            'customers' => $customers,
+            'status code' => http_response_code(),
+        ]);
     }
 
     public function LogIn (Request $request)
@@ -87,11 +106,6 @@ class UserController extends Controller
         return response()->json(['success'=>'logged out successfully'], 200);
     }
 
-    public function RemoveCustomer($id)
-    {
-        $user = User::query()->find($id)->delete();
-        return http_response_code();
-    }
 
 }
 

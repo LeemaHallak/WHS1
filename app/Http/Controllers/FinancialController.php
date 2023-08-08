@@ -18,7 +18,7 @@ class FinancialController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function ShowAllF()
+    public function ShowAllFinancials()
     {
         $financial = Financial::all();
         if ($financial->isEmpty()) {
@@ -33,11 +33,10 @@ class FinancialController extends Controller
         ]);
     }
 
-    public function ShowMonthlyF(Request $request)
+    public function ShowMonthlyFinancials($month)
     {
-        $month = $request->month;
-        $Monthlyfinancial = Financial::where('month', $month);
-        if ($Monthlyfinancial->isEmpty()) {
+        $Monthlyfinancial = Financial::where('month', $month)->get();
+        if (!$Monthlyfinancial) {
             return response()->json([
                 'message' => 'no financial to show',
                 'status code' => 204,
@@ -51,23 +50,23 @@ class FinancialController extends Controller
 
     public function store(Request $request)
     {
-        $curr_month = Carbon::now()->month;
-        $curr_shipment = Shipment::WhereMonth('shipment_date', $curr_month);
-        $outgoings = $curr_shipment->where('I\O', 'In')->sum('shipment_cost');
-        $incomings = $curr_shipment->where('I\O', 'Out')->sum('shipment_cost');
-        $costs = Cost::whereMonth('date', $curr_month)->sum('cost');
-        $equipment_costs = BranchesEquipments::whereMonth('date_in', $curr_month)->sum('cost');
-        $EqFixing_costs = EquipmentFix::with('branches_equipments')->whereMonth('fix_date', $curr_month)->sum('fixing_cost');
-        $transaction_costs = InnerTransaction::whereMonth('transaction_date', $curr_month)->sum('transaction_cost');
-        $total_costs = $costs+$equipment_costs+$EqFixing_costs+$transaction_costs;
-        $total_salaries = Employee::sum('salary');
-        $earnings = $incomings - $total_salaries - $outgoings - $total_costs;
+        $currMonth = Carbon::now()->format('F');
+        $currShipment = Shipment::WhereMonth('shipment_date', $currMonth);
+        $outgoings = $currShipment->where('I\O', 'In')->sum('shipment_cost');
+        $incomings = $currShipment->where('I\O', 'Out')->sum('shipment_cost');
+        $costs = Cost::whereMonth('date', $currMonth)->sum('cost');
+        $equipmentCosts = BranchesEquipments::whereMonth('date_in', $currMonth)->sum('cost');
+        $EqFixingCosts = EquipmentFix::with('branches_equipments')->whereMonth('fix_date', $currMonth)->sum('fixing_cost');
+        $transactionCosts = InnerTransaction::whereMonth('transaction_date', $currMonth)->sum('transaction_cost');
+        $totalCosts = $costs+$equipmentCosts+$EqFixingCosts+$transactionCosts;
+        $totalSalaries = Employee::sum('salary');
+        $earnings = $incomings - $totalSalaries - $outgoings - $totalCosts;
         $Financial = Financial::create([
-            'month' => $curr_month,
+            'month' => $currMonth,
             'outgoings' => $outgoings,
             'incomings'=> $incomings,
-            'total_salaries'=>$total_salaries,
-            'total_costs'=> $total_costs,
+            'total_salaries'=>$totalSalaries,
+            'total_costs'=> $totalCosts,
             'earnings'=> $earnings,
         ]);
         return response()->json([
@@ -76,9 +75,4 @@ class FinancialController extends Controller
         ]);
     }
 
-    public function RemoveFinancial($id)
-    {
-        Financial::query()->find($id)->delete();
-        return http_response_code();
-    }
 }

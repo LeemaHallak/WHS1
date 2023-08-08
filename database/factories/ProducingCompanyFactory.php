@@ -19,7 +19,7 @@ class ProducingCompanyFactory extends Factory
         return [
             'company_code'=>fake()->numberBetween(1000,10000),
             'company_name'=> fake()->name(),
-            'address_id'=>Address::factory()->create()->id,
+            'address_id'=>fake()->numberBetween(1,10),
             'phone_number'=>fake()->phoneNumber(),
             'email'=>fake()->email(),
             'company_register'=> fake()->numberBetween(10000,90000),

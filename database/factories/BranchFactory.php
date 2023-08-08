@@ -18,7 +18,7 @@ class BranchFactory extends Factory
     public function definition(): array
     {
         return [
-            'address_id' => Address::factory()->create()->id,
+            'address_id' => fake()->numberBetween(1,10),
             'phone_number' => fake()->phoneNumber(),
             'space' => fake()->numberBetween(1000.0,5000.0),
             'sectionMaxCapacity'=> fake()->numberBetween(100,1000),

@@ -11,9 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class BranchesProductsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function findBranchesCatProducts($branch_id, $category_id)   // all roles
     {
         $branch = BranchesProducts::where('branch_id', $branch_id);
@@ -32,9 +30,15 @@ class BranchesProductsController extends Controller
         ]);
     }
 
-    public function BranchProducts($branch_id)                      // all roles
+    public function BranchProducts($branch_id = null)                      // all roles
     {
-        $products = BranchesProducts::where('branch_id',$branch_id)->with('products')->get();
+        if($branch_id){
+            $products = BranchesProducts::where('branch_id',$branch_id)->with('products')->get()->groupBy('product_id');
+        }
+        elseif (!$branch_id){
+            $products = BranchesProducts::with('products')->get()->groupBy('product_id');
+        }
+        
         if ($products->isEmpty()) {
             return response()->json([
                 'message' => 'no products to show',
@@ -48,24 +52,13 @@ class BranchesProductsController extends Controller
         ]);   
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storeProduct(Request $request)
     {
         $this->authorize('add Branch_Product');
         $this->validate($request, [
             'product_id' => 'required',
             'branch_id'=>'required',
-            'quantity'=>'required|integer',
+            'in_quantity'=>'required|integer',
             'price'=>'required',
             'prod_date'=>'required|date',
             'exp_date'=>'required|date',
@@ -74,17 +67,20 @@ class BranchesProductsController extends Controller
             'buying_cost'=>'required',
         ]);
         $BranchProduct_data = $request->all();
-        $BranchesProducts = BranchesProducts::query()->create($BranchProduct_data);
+        $BranchesProducts = BranchesProducts::query()->create([$BranchProduct_data, 'recent_quantity'=>$BranchProduct_data['in_quantity']]);
+
+        
 
         return response()->json(['data'=>$BranchesProducts ,'status code'=> 201]);
     }
+
     public function Assistant_storeProduct(Request $request)
     {
         $this->authorize('add Branch_Product');
         $this->validate($request, [
             'product_id' => 'required',
             'branch_id'=>'required',
-            'quantity'=>'required|integer',
+            'in_quantity'=>'required|integer',
             'price'=>'required',
             'prod_date'=>'required|date',
             'exp_date'=>'required|date',
@@ -98,14 +94,6 @@ class BranchesProductsController extends Controller
         return response()->json(['data'=>$BranchesProducts ,'status code'=> 201]);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(BranchesProducts $branchesProducts)
-    {
-        //
-    }
     public function editProduct(Request $request, int $id): JsonResponse
     {
         $product = BranchesProducts::find($id);
@@ -119,7 +107,7 @@ class BranchesProductsController extends Controller
         $validatedData = $request->validate([
             'product_id' => 'nullable',
             'branch_id' => 'nullable',
-            'quantity' => 'nullable|integer',
+            'in_quantity' => 'nullable|integer',
             'price' => 'nullable',
             'prod_date' => 'nullable|date',
             'exp_date' => 'nullable|date',
@@ -135,6 +123,7 @@ class BranchesProductsController extends Controller
             'message' => 'product updated successfully'
         ]);
     }
+
     public function Assistant_editProduct(Request $request, int $id): JsonResponse
     {
         $product = BranchesProductsAssis::find($id);
@@ -148,7 +137,7 @@ class BranchesProductsController extends Controller
         $validatedData = $request->validate([
             'product_id' => 'nullable',
             'branch_id' => 'nullable',
-            'quantity' => 'nullable|integer',
+            'in_quantity' => 'nullable|integer',
             'price' => 'nullable',
             'prod_date' => 'nullable|date',
             'exp_date' => 'nullable|date',
@@ -163,28 +152,5 @@ class BranchesProductsController extends Controller
         return response()->json([
             'message' => 'waiting for the keeper aprove...'
         ]);
-    }
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(BranchesProducts $branchesProducts)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, BranchesProducts $branchesProducts)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(BranchesProducts $branchesProducts)
-    {
-        //
     }
 }

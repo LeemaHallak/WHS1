@@ -185,9 +185,4 @@ class ShipmentController extends Controller
         ]);
     }
     
-    public function RemoveShipment($id)
-    {
-        Shipment::query()->find($id)->delete();
-        return http_response_code();
-    }
 }

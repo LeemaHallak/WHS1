@@ -70,23 +70,6 @@ class BranchController extends Controller
                 'status code'=> http_response_code(),
             ]);
     }
-    public function deleteBranch($id)
-    {
-        $branch = Branch::find($id);
-        if ($branch) {
-            $branch->delete();
-            return response()->json([
-                'message' => 'Branch deleted successfully',
-                'status code' => http_response_code(),
-            ]);
-        } 
-        else {
-            return response()->json([
-                'message' => 'Branch not found',
-                'status code' => http_response_code(),
-            ]);
-        }
-    }
     /**
      * Display the specified resource.
      */

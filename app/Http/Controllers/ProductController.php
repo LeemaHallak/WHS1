@@ -29,7 +29,7 @@ class ProductController extends Controller
 
     public function AllProducts()
     {
-        $products = Product::get();
+        $products = Product::get()->groupBy('Category_id');
         if ($products->isEmpty()) {
             return response()->json([
                 'message' => 'no products to show',
@@ -66,7 +66,6 @@ class ProductController extends Controller
 
         $product = Product::query()->create([
             'product_name'=> $request->input('product_name'),
-            'InnerCategory_id'=> $request->input('Inner_Category_id'),
             'description'=> $request->input('description'),
             'ProducingCompany_id'=> $request->input('Producing_Company_id'),
             'Supplier_id'=>$request->input('supplier_id'),
@@ -74,9 +73,9 @@ class ProductController extends Controller
             'product_code'=>$request->input('product_code'),
             'Category_id'=>$request->input('Category_id'),
             'weight'=>$request->input('weight'),
-            'WUnit_id'=>$request->input('WUnit_id'),
+            'WUnit'=>$request->input('WUnit'),
             'size'=>$request->input('size'),
-            'SUnit_id'=>$request->input('SUnit_id'),
+            'SUnit'=>$request->input('SUnit'),
             'box_quantity'=>$request->input('box_quantity'),
             'image'=>$image_name_to_store,
         ]);

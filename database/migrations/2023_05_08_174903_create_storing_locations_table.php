@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('storing_locations', function (Blueprint $table) {
+            $table->id();
             $table->string('main_section');
             $table->string('section');
             $table->foreignId('branch_id')->constrained('branches');
@@ -19,7 +20,7 @@ return new class extends Migration
             $table->integer('unavailable_quantity');
             $table->string('locationNum')->nullable();
             $table->timestamps();
-            $table->primary(['main_section','section','branch_id']);
+            $table->unique(['main_section','section','branch_id']);
         });
 
 

@@ -19,8 +19,8 @@ class BranchesCustomersFactory extends Factory
     public function definition(): array
     {
         return [
-            'branch_id'=> Branch::factory()->create()->id,
-            'customer_id'=>User::factory()->create()->id,
+            'branch_id'=> fake()->numberBetween(1,10),
+            'customer_id'=>fake()->numberBetween(1,10),
         ];
     }
 

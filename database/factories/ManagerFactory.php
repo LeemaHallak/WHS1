@@ -18,7 +18,7 @@ class ManagerFactory extends Factory
     public function definition(): array
     {
         return [
-            'employee_id' => Employee::factory()->create()->id,
+            'employee_id' => fake()->numberBetween(1,10),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'role_id'=> fake()->numberBetween(2,3),
         ];

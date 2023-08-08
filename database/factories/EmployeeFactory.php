@@ -21,7 +21,7 @@ class EmployeeFactory extends Factory
             'employee_name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone_number' =>  fake()->phoneNumber(),
-            'address_id' => Address::factory()->create()->id,
+            'address_id' => fake()->numberBetween(1,10),
             'branch_id'=> fake()->numberBetween(1,5),
             'salary'=>fake()-> numberBetween(1000.0,2000.0),
             'photo'=>fake()->text(),

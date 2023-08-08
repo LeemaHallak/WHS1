@@ -20,8 +20,8 @@ class BpSlFactory extends Factory
     public function definition(): array
     {
         return [
-            'BranchesProduct_id'=>BranchesProducts::factory()->create()->id,
-            'storing_locations_id'=>StoringLocations::factory()->create()->id,
+            'BranchesProduct_id'=>fake()->numberBetween(1,10),
+            'StoringLocation_id'=>fake()->numberBetween(1,10),
         ];
     }
 }

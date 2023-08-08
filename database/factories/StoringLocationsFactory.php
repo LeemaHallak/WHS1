@@ -20,7 +20,7 @@ class StoringLocationsFactory extends Factory
         return [
             'main_section' => fake()->word(),
             'section'=> fake()->numberBetween(1,200),
-            'branch_id'=> Branch::factory()->create()->id,
+            'branch_id'=> fake()->numberBetween(1,10),
             'available_quantity'=>fake()->numberBetween(100,1000),
             'unavailable_quantity'=>fake()->numberBetween(100,1000),
         ];

@@ -133,16 +133,27 @@ class EmployeeController extends Controller
                 'salary' => 'required',
             ]);
 
+            $image_name_to_store = 'default.png';
+            if ($request->hasFile('image'))
+            {
+                $imagenameWithExt=$request->file('image')->getClientOriginalName();
+                $imagename=pathinfo($imagenameWithExt,PATHINFO_FILENAME);
+                $extension=$request->file('image')->getClientOriginalExtension();
+                $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
+                $request->file('image')->storeAs('public/images',$image_name_to_store);
+            }
+    
             $employee = Employee ::query()->create([
                 'employee_name' => $request->employee_name ,
                 'email'=> $request->email,
                 'phone_number' => $request->phone_number,
-                'address'=> $request->address,
+                'address_id'=> $request->address_id,
                 'branch_id' => $branch_id,
                 'salary'=>$request->salary,
+                'photo'=>$image_name_to_store,
+                'position'=>$request->position,
                 'is_manager'=> $is_manager,
             ]);
-    
             return response()->json([
                 'data' => $employee,
                 'status code'=>http_response_code()
@@ -203,21 +214,39 @@ class EmployeeController extends Controller
 
     }
 
-    public function ShowBranchesAssistants($branch_id, $role_id)
+    public function ShowBranchesManagers($role_id, $branch_id = null )
     {
-        $branch = Branch::find($branch_id);
-            $assistant = $branch->managers()->where('role_id', $role_id)->with('employee')->get();
-        if ($assistant->isEmpty()) {
+        if($branch_id){
+            $branch = Branch::find($branch_id);
+            $managers = $branch->managers()->where('role_id', $role_id)->with('employee')->get();
+        }
+        elseif (!$branch_id){
+            $managers = Manager::where('role_id', $role_id)->with('employee')->get()->groupBy(function ($manager) {
+                return $manager->employee->branch_id ;
+            });
+        }
+        if ($managers->isEmpty()) {
             return response()->json([
                 'message' => 'no employyees',
             'status code' => http_response_code()
             ],http_response_code());
         }
-        return response()->json([
-            'data' => $assistant,
+        return [
+            'data' => $managers,
             'status code' => http_response_code()
-        ]);
+        ];
+    }
 
+    public function ShowAllBranchesManagers($branch_id = null)
+    {
+        $keepers = (new EmployeeController)->ShowBranchesManagers( 1, $branch_id );
+        $assistants = (new EmployeeController)->ShowBranchesManagers(2, $branch_id);
+        return (!$keepers && !$assistants) 
+            ? response()->json(['message' => 'no employyees',],http_response_code())
+                : response()->json([
+                    'keepers' => $keepers,
+                    'assistants'=>$assistants,
+                ],http_response_code());
     }
 
     /**
@@ -245,10 +274,4 @@ class EmployeeController extends Controller
         }
     }
     
-    public function RemoveEmployee($id)
-    {
-        $employee = Employee::query()->find($id)->delete();
-        return http_response_code();
-    }
-
 }

@@ -20,10 +20,10 @@ class OrderProductsFactory extends Factory
     public function definition(): array
     {
         return [
-            'BranchesProducts_id'=> BranchesProducts::factory()->create()->id,
+            'BranchesProducts_id'=> fake()->numberBetween(1,10),
             'quantity'=>fake()->numberBetween(100,1000),
             'total_price'=>fake()->numberBetween(500.0,9000.0),
-            'OrderList_id'=> OrderList::factory()->create()->id,
+            'OrderList_id'=>fake()->numberBetween(1,10),
         ];
     }
 

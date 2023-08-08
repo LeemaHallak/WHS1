@@ -18,8 +18,8 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'country_id'=> Country::factory()->create()->id,
-            'city'=>fake()->word(),
+            'country_id'=> fake()->numberBetween(1,10),
+            'city'=>fake()->city(),
         ];
     }
 }

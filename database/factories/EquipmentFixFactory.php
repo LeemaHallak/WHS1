@@ -19,7 +19,7 @@ class EquipmentFixFactory extends Factory
     public function definition(): array
     {
         return [
-            'equipment_id'=>BranchesEquipments::factory()->create()->id,
+            'equipment_id'=>fake()->numberBetween(1,10),
             'damage_date'=>fake()->date(),
             'fix_date'=>fake()->date(),
             'fixing_cost'=>fake()->numberBetween(100.0,1000.0),

@@ -19,8 +19,8 @@ class ShipmentFactory extends Factory
         return [
             'I\O'=>fake()->randomElement(['In','Out']),
             'shipping_company'=>fake()->word(),
-            'SourceAddress_id'=>Address::factory()->create()->id,
-            'DestinationAddress_id'=>Address::factory()->create()->id,
+            'SourceAddress_id'=>fake()->numberBetween(1,10),
+            'DestinationAddress_id'=>fake()->numberBetween(1,10),
             'shipment_date'=>fake()->date(),
             'shipment_type'=>fake()->randomElement(['air','sea','overland']),
             'max_quantity'=>fake()->randomNumber(),

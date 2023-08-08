@@ -32,8 +32,6 @@ class OrderListController extends Controller
      */
     public function StartOrder(Request $request)
     {
-        $this->authorize('add Order_List');
-        
         $role = auth()->guard('manager-api')->user()->role_id;
         $customer = $request->customer;
         $customer_id = ($role == 1) ? $customer : Auth::id();
@@ -55,10 +53,16 @@ class OrderListController extends Controller
         return response()->json(['data'=>$updtaing,'status code'=>200]);
     }
 
-    public function showOrderLists($id)
+    public function showOrderLists($id = null)
     {
-        $orders = Order::with('OrderList.customers')->where('shipment_id',$id)->get();
-        
+        $orders = Order::with('OrderList.customers');
+        if(!$id){
+            $orders = $orders->get();
+            return response()->json(
+                $orders
+                ,200);
+        }
+        $orders = $orders->where('shipment_id',$id)->get();
         if ($orders->isNotEmpty()) {
             return response()->json(
                 $orders

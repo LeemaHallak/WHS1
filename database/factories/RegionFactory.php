@@ -18,7 +18,7 @@ class RegionFactory extends Factory
     public function definition(): array
     {
         return [
-            'city_id'=> City::factory()->create()->id,
+            'city_id'=> fake()->numberBetween(1,10),
             'region'=>fake()->word(),
         ];
     }

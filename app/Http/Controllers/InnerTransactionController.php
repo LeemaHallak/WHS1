@@ -15,14 +15,20 @@ class InnerTransactionController extends Controller
     public function addInnerTransaction(Request $request)
     {
         $manager = auth()->guard('manager-api')->user();
-        $employee = $manager->employee;
-        $SourceBranch_id = $employee->branch_id;
+        $role = $manager->role_id;
+        $BranchProduct_id = $request->BranchProduct_id;
+        $Product = BranchesProducts::find( $BranchProduct_id);
+        $productBranch = $Product->branch_id;
+        if($role == 1){
+            $employee = $manager->employee;
+            $SourceBranch_id = $employee->branch_id;
+        }
+        else if($role == 3){
+            $SourceBranch_id = $productBranch;
+        }
 
         $quantity = $request->quantity;
-        $BranchProduct_id = $request->BranchProduct_id;
-        $Product = BranchesProducts::where('id', $BranchProduct_id);
-        $ProductQuantity = $Product->value('quantity');
-        $productBranch = $Product->branch_id;
+        $ProductQuantity = $Product->value('recent_quantity');
 
         $DestinationBranch_id = $request->DestinationBranch_id;
 
@@ -32,7 +38,7 @@ class InnerTransactionController extends Controller
             $SourceBranch_id == $productBranch)
         {
             $innerTransaction = InnerTransaction::query()->create([
-                'BranchesProducts_id' => $BranchProduct_id,
+                'BranchProduct_id' => $BranchProduct_id,
                 'SourceBranch_id'=> $SourceBranch_id,
                 'DestinationBranch_id'=>$DestinationBranch_id,
                 'quantity'=>$quantity,
@@ -43,14 +49,14 @@ class InnerTransactionController extends Controller
 
         $newProductQuantity = $ProductQuantity - $quantity;
         $Product->update([
-            'quantity'=>$newProductQuantity
+            'recent_quantity'=>$newProductQuantity
             ]); 
-        $New_ProductQuantity = $Product->value('quantity');
+        $New_ProductQuantity = $Product->value('recent_quantity');
 
         $newBranchProduct = BranchesProducts::query()->create([
             'product_id' => $Product->product_id,
             'branch_id'=>$DestinationBranch_id,
-            'quantity'=>$quantity,
+            'recent_quantity'=>$quantity,
             'price'=>$Product->price,
             'prod_date'=>$Product->prod_date,
             'exp_date'=>$Product->exp_date,
@@ -66,11 +72,17 @@ class InnerTransactionController extends Controller
         ]);
     }
 
-    public function showInnerTransaction() //Keeper&Assistant
+    public function showInnerTransaction(Request $request, $sourceBranch_id = null) //Keeper&Assistant
     {
         $manager = auth()->guard('manager-api')->user();
-        $employee = $manager->employee;
-        $branch_id = $employee->branch_id;
+        $role = $manager->role_id;
+        if($role == 1){
+            $employee = $manager->employee;
+            $branch_id = $employee->branch_id;
+        }
+        else if($role == 3){
+            $branch_id = $sourceBranch_id;
+        }
 
         $out = InnerTransaction::where('SourceBranch_id', $branch_id)->get();
         $in = InnerTransaction::where('DestinationBranch_id', $branch_id)->get();

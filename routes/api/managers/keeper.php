@@ -12,6 +12,7 @@ use App\Http\Controllers\BranchesInnerCatController;
 use App\Http\Controllers\BranchesProductsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CostController;
+use App\Http\Controllers\DeletionsController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\EquipmentFixController;
 use App\Http\Controllers\FinancialController;
@@ -40,14 +41,8 @@ use Database\Factories\FinancialFactory;
 
 Route:: prefix('/keeper')->group( function (){ 
     Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(){
-
-        Route::post('/update/{requet_id}', [Approve::class, 'updateState']);
-        Route::post('/reject/{request_id}', [Approve::class, 'reject']);
-
-        
         Route::group([ 
             'middleware'=>'keeper',], function(){
-                Route::post('/Orderd', [OrderListController::class, 'ordering']);
                 Route:: prefix('/Add')->group( function (){ 
                     Route::post('/newEquipment', [EquipmentController::class, 'AddNewEquipments']);
                     Route::post('/AddNewProduct',[ProductController::class,'store']);
@@ -69,7 +64,6 @@ Route:: prefix('/keeper')->group( function (){
                     Route::get('showOrderProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
                     Route::get('/costs/{type}', [CostController::class, 'ShowCosts']); //N
                     Route::get('/innerTransactions', [InnerTransactionController::class, 'ShowInnerTransaction']); //N
-//showDetails
                 });
                 Route::prefix('/edit')->group(function(){
                     Route::post('/editProduct/{id}',[BranchesProductsController::class, 'editProduct']);
@@ -77,24 +71,28 @@ Route:: prefix('/keeper')->group( function (){
                     Route::post('/editEquipment/{id}',[EquipmentController::class, 'editEquipment']);
                 });
                 Route::prefix('/delete')->group(function(){
-                    Route::delete('/BranchEquipment/{id}',[BranchesEquipmentsController::class, 'RemoveBranchEquipment']);
-                    Route::delete('/BranchProduct/{id}',[BranchesProductsController::class, 'RemoveBranchProduct']);
-                    Route::delete('/financial/{id}',[FinancialController::class, 'RemoveFinancial']);
-                    Route::delete('/order/{id}',[OrderController::class, 'RemoveOrder']);
-                    Route::delete('/orderProducts/{id}',[OrderProductsController::class, 'RemoveOrderProduct']);
-                    Route::delete('/producingCompany/{id}',[ProducingCompanyController::class, 'RemoveProducingCompany']);
-                    Route::delete('/storingLocations/{main}/{section}',[StoringLocationsController::class, 'RemoveLocation']);
+                    Route::controller(DeletionsController::class)->group(function(){
+                        Route::delete('/BranchEquipment/{id}', 'RemoveBranchEquipment');
+                        Route::delete('/BranchProduct/{id}', 'RemoveBranchProduct');
+                        Route::delete('/financial/{id}', 'RemoveFinancial');
+                        Route::delete('/order/{id}', 'RemoveOrder');
+                        Route::delete('/orderProducts/{id}', 'RemoveOrderProduct');
+                        Route::delete('/producingCompany/{id}', 'RemoveProducingCompany');
+                        Route::delete('/storingLocations/{main}/{section}', 'RemoveLocation');
+                    });
                 });
                 Route::prefix('/order')->group(function(){
+                    Route::controller(OrderController::class)->group(function(){
+                        Route::post('/submit', 'order');
+                        Route::post('/ready/{id}/{ready}', 'OrderReady');
+                        Route::post('/arrived/{id}/{ready}', 'OrderArrived');
+                        Route::get('/show', 'ShowOrders');
+                        Route::get('/showByShipment/{shipment_id}', 'ShowShipmentOrders');
+                    });
                     Route::post('/new', [OrderListController::class, 'StartOrder']);
                     Route::post('/addProducts',[OrderProductsController::class, 'store']);
-                    Route::post('/submit',[OrderController::class, 'order']);
-                    Route::post('/ready/{id}/{ready}', [OrderController::class, 'OrderReady']);
-                    Route::post('/arrived/{id}/{ready}', [OrderController::class, 'OrderArrived']);
-                    Route::get('/show', [OrderController::class, 'ShowOrders']);
-                    Route::get('/showByShipment/{shipment_id}', [OrderController::class, 'ShowShipmentOrders']);
+                    Route::post('/Orderd', [OrderListController::class, 'ordering']);
                 });
-
                 Route::controller(StatisticsController::class)
                 ->prefix('/statistics')
                 ->group(function(){
@@ -104,8 +102,11 @@ Route:: prefix('/keeper')->group( function (){
                     Route::get('products/Out/{type}', 'OutProductsStatistics');
                     Route::get('OrderIncomings/{type}', 'ordersIncomings');
                     Route::get('/earnings', 'earningsStatistics');
+                });
+                Route::controller(Approve::class)->group(function(){
+                    Route::post('/update/{requet_id}', 'updateState');
+                    Route::post('/reject/{request_id}', 'reject');
                 }); 
-            
             }
         );
     });

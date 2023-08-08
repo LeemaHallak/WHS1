@@ -26,5 +26,18 @@ class EquipmentFixController extends Controller
             ]);
     }
 
+    public function showAllFixes()
+    {
+            $equipmentFixes = EquipmentFix::query();
+            $CountEquipmentFixes = $equipmentFixes->count();
+            $GetEquipmentFixes = $equipmentFixes->get()->groupBy('equipment_id');
+
+            return response()->json([
+                'equipment fixes: ' => $GetEquipmentFixes,
+                'equipment fix times: ' => $CountEquipmentFixes,
+                'status code' => http_response_code(),
+            ]);
+    }
+
 }
 

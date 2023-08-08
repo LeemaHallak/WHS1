@@ -20,8 +20,8 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'OrderList_id'=> OrderList::factory()->create()->id,
-            'Shipment_id'=>Shipment::factory()->create()->id,
+            'OrderList_id'=> fake()->numberBetween(1,10),
+            'Shipment_id'=>fake()->numberBetween(1,10),
             'order_date'=>fake()->date(),
             'ready'=>fake()->boolean(),
             'arrived'=>fake()->boolean(),

@@ -26,7 +26,7 @@ class EquipmentController extends Controller
         $date = $request->date_in;
         $branch_id = $request->branch_id;
         $name = $request->name;
-        $GetEquipment = Equipment::query();
+        $GetEquipment = BranchesEquipments::query()->with('equipments');
 
         if ($getBy == 'branch'){
             $GetEquipment = $GetEquipment->where('branch_id', $branch_id)->get();
@@ -66,7 +66,7 @@ class EquipmentController extends Controller
 
             if($GetEquipment->isEmpty()){
                 return response()->json([
-                    'message'=>'there is no equipments in this branch',
+                    'message'=>'there is no equipments ',
                     'status code'=> http_response_code(),
                 ]);
             }
@@ -79,7 +79,9 @@ class EquipmentController extends Controller
         }
 
         if ($getBy == 'name'){
-            $Equipment = $GetEquipment->where('name', $name);
+            $Equipment = $GetEquipment->whereHas('equipments', function($q) use ($name){
+                $q->where('equipment_name', $name);
+            });
             $GetEquipment = $Equipment->get();
             $EquipmentQuantity = $Equipment->sum('quantity');
 
@@ -193,7 +195,7 @@ class EquipmentController extends Controller
     public function showAllCosts( $fixingCost)
     {
         if ($fixingCost == 'true'){
-            $GetCost = Equipment::query()->sum('cost');
+            $GetCost = BranchesEquipments::query()->sum('cost');
             $GetfixingCost = EquipmentFix::sum('fixing_cost');
             return response()->json([
                 'total cost is:' => $GetCost,
@@ -202,7 +204,7 @@ class EquipmentController extends Controller
             ]);
         }
         elseif ($fixingCost == 'false') {
-            $GetCost = Equipment::query()->sum('cost');
+            $GetCost = BranchesEquipments::query()->sum('cost');
             return response()->json([
                 'total cost is:' => $GetCost,
                 'status code:' =>http_response_code(),
@@ -250,18 +252,24 @@ class EquipmentController extends Controller
         return $existingEquipment;
     }
 
-    public function AddNewEquipments(Request $request)
+    public function AddSysEquipment(Request $request)
     {
         $equipment_name = $request->equipment_name;
         $description = $request->description;
-        $new_publicEquipment = Equipment::query()->create([
+        $new_SysEquipment = Equipment::query()->create([
             'equipment_name'=>$equipment_name,
             'description'=>$description,
         ]);
-        $equipment_id = $new_publicEquipment->id;
+        return $new_SysEquipment;
+    }
+
+    public function AddNewEquipments(Request $request)
+    {
+        $new_SysEquipment = (new EquipmentController)->AddSysEquipment($request);
+        $equipment_id = $new_SysEquipment->id;
         $new_equipment = (new EquipmentController())->AddExistingEquipment($request, $equipment_id);
         return response()->json([
-            'system eqipment data' => $new_publicEquipment,
+            'system eqipment data' => $new_SysEquipment,
             'barnch equipment data' => $new_equipment,
             'status code' => http_response_code(),
         ]);

@@ -30,7 +30,7 @@ class Category extends Model
 
     public function icons()
     {
-        return $this->hasMany(CategoryIcon::class, 'category');
+        return $this->hasMany(CategoryIcon::class, 'category_id');
     }
 
     public function barnchesproducts(): HasManyThrough

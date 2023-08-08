@@ -19,8 +19,8 @@ class OrderListFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_id'=>User::factory()->create()->id,
-            'branch_id'=>Branch::factory()->create()->id,
+            'customer_id'=>fake()->numberBetween(1,10),
+            'branch_id'=>fake()->numberBetween(1,10),
             'order_quantity'=>fake()->randomNumber(),
             'order_cost'=> fake()->numberBetween(1000.0,10000.0),
             'orderd'=>fake()->boolean(),

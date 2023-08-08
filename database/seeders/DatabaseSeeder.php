@@ -66,12 +66,12 @@ class DatabaseSeeder extends Seeder
         Shipment::factory(10)->create();
         OrderList::factory(10)->create();
         Financial::factory(10)->create();  
-        BpSl::factory(10)->create();
         Equipment::factory(10)->create();
         BranchesEquipments::factory(10)->create();
         EquipmentFix::factory(10)->create();
         StoringLocations::factory(10)->create();
         OrderList::factory(10)->create();
+        BpSl::factory(10)->create();
         OrderProducts::factory(10)->create();
         Order::factory(10)->create();
 

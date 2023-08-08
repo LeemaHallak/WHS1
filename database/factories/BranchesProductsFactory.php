@@ -19,9 +19,10 @@ class BranchesProductsFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id'=>Product::factory()->create()->id,
-            'branch_id'=>Branch::factory()->create()->id,
-            'quantity'=>fake()->numberBetween(100,1000),
+            'product_id'=>fake()->numberBetween(1,10),
+            'branch_id'=>fake()->numberBetween(1,10),
+            'in_quantity'=>fake()->numberBetween(100,1000),
+            'recent_quantity'=>fake()->numberBetween(100,1000),
             'date_in'=>fake()->date(),
             'prod_date'=>fake()->date(),
             'exp_date'=>fake()->date(),

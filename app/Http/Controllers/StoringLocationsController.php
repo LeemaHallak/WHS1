@@ -9,10 +9,58 @@ use Illuminate\Http\Request;
 
 class StoringLocationsController extends Controller
 {
-    public function getnum()
+    public function showAvailableSections($operator)
     {
-        $location = StoringLocations::get('locationNum');
-        return response()->json($location);
+        $manager = auth()->guard('manager-api')->user();
+        if ($manager->role_id !=3){
+            $employee = $manager->employee;
+        $branch_id = $employee->branch_id;
+        $location = StoringLocations::where('branch_id', $branch_id)
+                    ->whereNotNull('locationNum')
+                    ->where('available_quantity', $operator, 0)
+                    ->orderBy('available_quantity')
+                    ->get(['locationNum', 'available_quantity']);
+        }
+        else {
+            $location = StoringLocations::whereNotNull('locationNum')
+                    ->where('available_quantity', $operator, 0)
+                    ->orderBy('available_quantity')
+                    ->get(['locationNum', 'available_quantity']);
+        }
+        return $location;
+    }
+
+    public function showStoringLocation()
+    {
+        $availableSections = (new StoringLocationsController())->showAvailableSections('>');
+        $unAvailableSections = (new StoringLocationsController())->showAvailableSections('=');  
+        return response()->json([
+            'available sections'=>$availableSections,
+            'unavailable sections'=>$unAvailableSections,
+        ],http_response_code());
+    }
+
+    public function showSections($mainSection)
+    {
+        $manager = auth()->guard('manager-api')->user();
+        $employee = $manager->employee;
+        $branch_id = $employee->branch_id;
+        $location = StoringLocations::where('branch_id', $branch_id)
+                    ->where('main_section', $mainSection)
+                    ->whereNotNull('locationNum')
+                    ->where('available_quantity', '>', 0)
+                    ->orderBy('available_quantity')
+                    ->get(['locationNum', 'available_quantity']);
+        return response()->json($location, http_response_code());
+    }
+
+    public function showDetails($id)
+    {
+        $locationDetails = StoringLocations::find($id);
+        return response()->json([
+            'data'=>$locationDetails,
+            'status code'=>http_response_code(),
+        ]);
     }
 
     public function store(Request $request)
@@ -23,8 +71,7 @@ class StoringLocationsController extends Controller
 
         $main_sectionString = strval($main_section);
         $sectionString = strval($section);
-        $branch_idString = strval($branch_id);
-        $locationNum = $main_sectionString.$sectionString.$branch_idString;
+        $locationNum = $main_sectionString."-".$sectionString;
 
         $location = StoringLocations::query()->create([
             'main_section'=> $main_section,
@@ -38,10 +85,5 @@ class StoringLocationsController extends Controller
     
     }
 
-    public function RemoveLocation($main, $section)
-    {
-        StoringLocations::query()->where('main_section', $main)->Where('section', $section)->delete();
-        return http_response_code();
-    }
 
 }

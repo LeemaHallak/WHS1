@@ -18,8 +18,8 @@ class AddressFactory extends Factory
     public function definition(): array
     {
         return [
-            'region_id'=> Region::factory()->create()->id,
-            'address'=> fake()->text(),
+            'region_id'=> fake()->numberBetween(1,10),
+            'address'=> fake()->address(),
         ];
     }
 }

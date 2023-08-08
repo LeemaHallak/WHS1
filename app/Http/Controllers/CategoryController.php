@@ -23,8 +23,9 @@ class CategoryController extends Controller
         $id = $request->input('id');
         $categories = Category::find($id);
         $parent = $categories->parent;
+        $ParentsWithIcons = $parent->load('icons');
         return response()->json([
-            'data'=>$parent,
+            'data'=>$ParentsWithIcons,
             'status code'=>200,
         ]);
     }
@@ -34,7 +35,7 @@ class CategoryController extends Controller
         $products = (new BranchesProductsController)->BranchesCatProducts($branch_id, $category_id);
         $categories = Category::find($category_id);
         $children = $categories->children;
-        if ($products->isEmpty())
+        if (!$products)
         {
             $category = Category::find($category_id);
             $cats_products = $category->barnchesproducts()->get()->groupBy('branch_id');
@@ -52,8 +53,41 @@ class CategoryController extends Controller
                 'status code'=>200,
             ]);
         }
-        else{
-            return response()->json('empty');   
+        else if ($children->isNotEmpty()) {
+            $massage = true;
+            $childrenWithIcons = $children->load('icons');
+            return response()->json([
+                'massage'=> $massage, 
+                'data'=>$children,
+                'status code'=>200,
+            ]);  
+        }
+    }
+
+    public function GeneralChildrenCategories($category_id)
+    {
+        $products = (new ProductController)->CatProducts($category_id);
+        $products = (new ProductController)->CatProducts($category_id);
+        $categories = Category::find($category_id);
+        $children = $categories->children;
+        if ($children->isEmpty())
+        {
+            $massage = false;
+            return response()->json([
+                'massage'=> $massage, 
+                'data'=>$products,
+                'status code'=>200,
+            ]);
+        }
+        else if ($children->isNotEmpty()) {
+            $message = true;
+            $childrenWithIcons = $children->load('icons');
+        
+            return response()->json([
+                'message' => $message,
+                'data' => $childrenWithIcons,
+                'status code' => 200,
+            ]);
         }
     }
 
@@ -62,6 +96,7 @@ class CategoryController extends Controller
         $id = $request->input('id');
         $categories = Category::find($category_id);
         $children = $categories->allChildren;
+        $childrenWithIcons = $children->load('icons');
         return response()->json([
             'data'=>$children,
             'status code'=>200,
@@ -70,24 +105,13 @@ class CategoryController extends Controller
 
     public function ShowRootsCategories(Request $request)
     {
-        $categories = Category::where('parent_id', null)->get();
+        $categories = Category::where('parent_id', null)->withAggregate('icons', 'icon')->get();
         return response()->json([
             'data'=>$categories,
             'status code'=>200,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function approveAddCat(Request $request)
     {
         $Category = CategoryAssis::query()->create([
@@ -104,22 +128,9 @@ class CategoryController extends Controller
             'parent_id'=>$request->input('parent_id'),
         ]);
 
-        // $Category->withoutApproval();
-
         return response()->json([$Category,201]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(category $category)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function editCategory(Request $request, int $id): JsonResponse
     {
         $category = Category::find($id);
@@ -165,19 +176,4 @@ class CategoryController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, category $category)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(category $category)
-    {
-        //
-    }
 }
