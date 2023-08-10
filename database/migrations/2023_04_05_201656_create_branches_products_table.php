@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('branch_id')->constrained('branches');
+            $table->foreignId('Supplier_id')->constrained('users');
             $table->integer('in_quantity');
             $table->integer('recent_quantity');
             $table->date('date_in');

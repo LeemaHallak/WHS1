@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('product_name');
             $table->foreignId('Category_id')->constrained('categories');
             $table->text('description');
-            $table->foreignId('Supplier_id')->constrained('users');
             $table->string('image');
             $table->double('weight');
             $table->string('WUnit');

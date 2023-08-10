@@ -23,6 +23,7 @@ class OrderListFactory extends Factory
             'branch_id'=>fake()->numberBetween(1,10),
             'order_quantity'=>fake()->randomNumber(),
             'order_cost'=> fake()->numberBetween(1000.0,10000.0),
+            'order_earnings'=> fake()->numberBetween(1000.0,10000.0),
             'orderd'=>fake()->boolean(),
         ];
     }

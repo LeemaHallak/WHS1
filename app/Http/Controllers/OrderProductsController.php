@@ -51,6 +51,7 @@ class OrderProductsController extends Controller
         if($IfOrdered == 0 && $ProductQuantity >= $quantity )
         {
             $ProductPrice = $Product->value('price');
+            $ProductEarning = $Product->value('buying_cost') - $ProductPrice;
             $TotalPrice = $ProductPrice*$quantity;
 
             $OrderProducts = OrderProducts::query()->create([
@@ -64,6 +65,13 @@ class OrderProductsController extends Controller
             $newOrderCost = $order_cost + $TotalPrice;
             $updateCost = $OrderList->update([
                     'order_cost'=>$newOrderCost
+                ]); 
+            $New_OrderCost = $OrderList->value('order_cost');
+
+            $orderEarning = $OrderList->value('order_earnings');
+            $newOrderEarnings = $orderEarning + $ProductEarning;
+            $updateEarnings = $OrderList->update([
+                    'order_earnings'=>$newOrderEarnings
                 ]); 
             $New_OrderCost = $OrderList->value('order_cost');
 

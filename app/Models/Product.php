@@ -21,11 +21,6 @@ class Product extends Model
         return $this->belongsTo(ProducingCompany::class, 'ProducingCompany_id');
     }
 
-    public function suppliers()
-    {
-        return $this->belongsTo(User::class, 'Supplier_id');
-    }
-
     public function WUnits()
     {
         return $this->belongsTo(Unit::class, 'WUnite_id');

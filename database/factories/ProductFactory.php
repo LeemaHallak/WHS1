@@ -27,7 +27,6 @@ class ProductFactory extends Factory
             'Category_id'=> fake()->numberBetween(1,10),
             'description'=>fake()->text(),
             'ProducingCompany_id'=>fake()->numberBetween(1,10),
-            'Supplier_id'=>fake()->numberBetween(1,10),
             'image'=>fake()->text(),
             'weight'=>fake()->numberBetween(10.0,1000.0),
             'WUnit'=>fake()->randomElement(['KG', 'G']),

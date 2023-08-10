@@ -21,6 +21,7 @@ class BranchesProductsFactory extends Factory
         return [
             'product_id'=>fake()->numberBetween(1,10),
             'branch_id'=>fake()->numberBetween(1,10),
+            'Supplier_id'=>fake()->numberBetween(1,10),
             'in_quantity'=>fake()->numberBetween(100,1000),
             'recent_quantity'=>fake()->numberBetween(100,1000),
             'date_in'=>fake()->date(),

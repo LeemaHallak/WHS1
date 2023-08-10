@@ -58,6 +58,7 @@ class BranchesProductsController extends Controller
         $this->validate($request, [
             'product_id' => 'required',
             'branch_id'=>'required',
+            'supplier_id'=> 'required',
             'in_quantity'=>'required|integer',
             'price'=>'required',
             'prod_date'=>'required|date',
@@ -80,6 +81,7 @@ class BranchesProductsController extends Controller
         $this->validate($request, [
             'product_id' => 'required',
             'branch_id'=>'required',
+            'supplier_id'=> 'required',
             'in_quantity'=>'required|integer',
             'price'=>'required',
             'prod_date'=>'required|date',
@@ -89,7 +91,7 @@ class BranchesProductsController extends Controller
             'buying_cost'=>'required',
         ]);
         $BranchProduct_data = $request->all();
-        $BranchesProducts = BranchesProductsAssis::query()->create($BranchProduct_data);
+        $BranchesProducts = BranchesProducts::query()->create([$BranchProduct_data, 'recent_quantity'=>$BranchProduct_data['in_quantity']]);
 
         return response()->json(['data'=>$BranchesProducts ,'status code'=> 201]);
     }
@@ -107,6 +109,7 @@ class BranchesProductsController extends Controller
         $validatedData = $request->validate([
             'product_id' => 'nullable',
             'branch_id' => 'nullable',
+            'supplier_id'=> 'required',
             'in_quantity' => 'nullable|integer',
             'price' => 'nullable',
             'prod_date' => 'nullable|date',
@@ -137,6 +140,7 @@ class BranchesProductsController extends Controller
         $validatedData = $request->validate([
             'product_id' => 'nullable',
             'branch_id' => 'nullable',
+            'supplier_id'=> 'required',
             'in_quantity' => 'nullable|integer',
             'price' => 'nullable',
             'prod_date' => 'nullable|date',

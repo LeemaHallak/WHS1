@@ -42,7 +42,7 @@ class User extends Authenticatable
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'Supplier_id');
+        return $this->hasMany(BranchesProducts::class, 'Supplier_id');
     }
 
     public function OrderList()

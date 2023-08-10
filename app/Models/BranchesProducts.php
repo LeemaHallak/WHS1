@@ -13,6 +13,11 @@ class BranchesProducts extends Model
         'id'
     ];
 
+    public function suppliers()
+    {
+        return $this->belongsTo(User::class, 'Supplier_id');
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id');

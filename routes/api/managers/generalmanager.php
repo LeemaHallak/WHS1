@@ -111,6 +111,11 @@ Route::prefix('/GeneralManager')->group(function(){
                     Route::get('products/Out/{type}/{branch_id?}', 'OutProductsStatistics');
                     Route::get('OrderIncomings/{type}/{branch_id?}', 'ordersIncomings');
                     Route::get('/earnings/{branch_id?}', 'earningsStatistics');
+                    Route::get('productsBySupplier/In/{type}/{branch_id?}', 'InProductsBySupplier');
+                    Route::get('/bestCatQuantities/{year}/{month?}/{branch_id?}', 'BestCatQuantities');
+                    Route::get('/bestCatEarnings/{year}/{month?}/{branch_id?}', 'BestCatEarnings');
+                    Route::get('/bestCustomer/{branch_id? }', 'BestCustomer');
+                    Route::get('/bestBranch/{year}/{month?}', 'BestBranch');
                 });
                 Route::controller(Approve::class)->group(function(){
                     Route::post('/update/{requet_id}', 'updateState');
