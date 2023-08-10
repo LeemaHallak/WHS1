@@ -24,10 +24,7 @@ class BranchesProductsController extends Controller
     public function BranchesCatProducts($branch_id, $category_id)   // all roles
     {
         $products = (new BranchesProductsController)->findBranchesCatProducts($branch_id, $category_id);
-        return response()->json([ 
-            'data'=>$products,
-            'status code'=>200,
-        ]);
+        return $products;
     }
 
     public function BranchProducts($branch_id = null)                      // all roles

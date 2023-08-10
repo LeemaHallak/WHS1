@@ -149,9 +149,9 @@ class StatisticsController extends Controller
         }
         if($type == 'daily'){
             $dailyInProducts = $Products
-            ->selectRaw('date_in as day, product_id as product,
+            ->selectRaw('date_in as day, supplier_id as supplier,
                         SUM(in_quantity) as total_quantity')
-            ->groupBy('day', 'product_id', 'supplier_id')
+            ->groupBy('day',  'supplier')
             ->get();
             return $dailyInProducts;
         }
@@ -159,18 +159,18 @@ class StatisticsController extends Controller
             $monthlyInProducts= $Products
             ->selectRaw('MONTH(date_in) as month,
                         YEAR(date_in) as year,
-                        product_id as product,
+                        supplier_id as supplier,
                         SUM(in_quantity) as total_quantity')
-            ->groupBy('month', 'year', 'product_id', 'supplier_id')
+            ->groupBy('month', 'year', 'supplier')
             ->get();
             return $monthlyInProducts;
         }
         elseif($type == 'yearly'){
             $yearlyInProducts= $Products
             ->selectRaw('YEAR(date_in) as year,
-                        product_id as product,
+                        supplier_id as supplier,
                         SUM(in_quantity) as total_quantity')
-            ->groupBy('year', 'product_id', 'supplier_id')
+            ->groupBy('year', 'supplier')
             ->get();
             return $yearlyInProducts;
         }

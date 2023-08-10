@@ -46,18 +46,18 @@ class CategoryController extends Controller
         }
         if ($children->isEmpty())
         {
-            $massage = false;
+            $message = false;
             return response()->json([
-                'massage'=> $massage, 
+                'massage'=> $message, 
                 'data'=>$products,
                 'status code'=>200,
             ]);
         }
         else if ($children->isNotEmpty()) {
-            $massage = true;
+            $message = true;
             $childrenWithIcons = $children->load('icons');
             return response()->json([
-                'massage'=> $massage, 
+                'massage'=> $message, 
                 'data'=>$children,
                 'status code'=>200,
             ]);  
