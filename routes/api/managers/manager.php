@@ -65,6 +65,7 @@ Route:: prefix('/managers')->group( function (){
                 Route::get('/location', 'showStoringLocation');
                 Route::get('/sectionLocation/{mainSection}', 'showSections');
                 Route::get('/locationDetails/{id}', 'showDetails');
+                Route::get('/mainSections', 'showMainSections');
                 Route::get('/availableSections/{operator}', 'showAvailableSections');
             });
             Route::get('/ProducingCompanies',[ProducingCompanyController::class, 'ShowProducingCompanies']);

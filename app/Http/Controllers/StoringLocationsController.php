@@ -40,6 +40,36 @@ class StoringLocationsController extends Controller
         ],http_response_code());
     }
 
+    public function showMainSections()
+    {
+        $manager = auth()->guard('manager-api')->user();
+        if ($manager->role_id !=3){
+            $employee = $manager->employee;
+            $branchId = $employee->branch_id;
+        }
+        $Sections = StoringLocations::when($branchId, function($query) use ($branchId){
+            $query->where('branch_id', $branchId);
+        })->whereNotNull('locationNum');
+
+        $availableSections = $Sections
+        ->where('available_quantity', '>', 0)
+        ->orderBy('available_quantity')
+        ->distinct()
+        ->pluck('main_section');
+
+        $unAvailableSections = StoringLocations::when($branchId, function($query) use ($branchId){
+            $query->where('branch_id', $branchId);
+        })->whereNotNull('locationNum')
+        ->where('available_quantity', '=', 0)
+        ->distinct()
+        ->pluck('main_section');
+
+        return response()->json([
+            'available sections'=>$availableSections,
+            'unavailable sections'=>$unAvailableSections,
+        ],http_response_code());
+    }
+
     public function showSections($mainSection)
     {
         $manager = auth()->guard('manager-api')->user();
