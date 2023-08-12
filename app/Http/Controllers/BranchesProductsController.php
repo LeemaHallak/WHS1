@@ -29,12 +29,9 @@ class BranchesProductsController extends Controller
 
     public function BranchProducts($branch_id = null)                      // all roles
     {
-        if($branch_id){
-            $products = BranchesProducts::where('branch_id',$branch_id)->with('products')->get()->groupBy('product_id');
-        }
-        elseif (!$branch_id){
-            $products = BranchesProducts::with('products')->get()->groupBy('product_id');
-        }
+        $products = BranchesProducts::when($branch_id, function($query) use ($branch_id){
+            $query->where('branch_id',$branch_id);
+        })->get()->groupBy('products.product_name');
         
         if ($products->isEmpty()) {
             return response()->json([
@@ -46,6 +43,25 @@ class BranchesProductsController extends Controller
             'data' => $products,
             'status code' => http_response_code()
 
+        ]);   
+    }
+
+    public function BranchProductDetails($product_id)                    
+    {
+        $details = BranchesProducts::where('product_id', $product_id);
+        $showDetails= $details->with('products')->get();
+        $sumQuantity = $details->sum('recent_quantity');
+        
+        if (!$details) {
+            return response()->json([
+                'message' => 'no products to show',
+                'status code' => http_response_code(),
+            ]);
+        }
+        return response()->json([
+            'Details' => $showDetails,
+            'quanty' =>$sumQuantity,
+            'status code' => http_response_code()
         ]);   
     }
 

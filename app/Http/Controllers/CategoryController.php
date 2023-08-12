@@ -67,7 +67,6 @@ class CategoryController extends Controller
     public function GeneralChildrenCategories($category_id)
     {
         $products = (new ProductController)->CatProducts($category_id);
-        $products = (new ProductController)->CatProducts($category_id);
         $categories = Category::find($category_id);
         $children = $categories->children;
         if ($children->isEmpty())
@@ -93,7 +92,6 @@ class CategoryController extends Controller
 
     public function ShowAllChildrenCategories(Request $request,$branch_id, $category_id)
     {
-        $id = $request->input('id');
         $categories = Category::find($category_id);
         $children = $categories->allChildren;
         $childrenWithIcons = $children->load('icons');

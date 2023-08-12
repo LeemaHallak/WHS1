@@ -42,6 +42,7 @@ Route:: prefix('/managers')->group( function (){
             });
             Route::controller(BranchesProductsController::class)->group(function(){
                 Route::get('/BranchProducts/{branch_id?}', 'BranchProducts');
+                Route::get('/Details/{product_id}', 'BranchProductDetails');
                 Route::get('/BranchCatProducts/{branch_id}/{category_id}', 'BranchesCatProducts');
             });
             Route::controller(EquipmentController::class)->group(function(){
