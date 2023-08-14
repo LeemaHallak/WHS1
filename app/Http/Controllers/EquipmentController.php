@@ -48,7 +48,7 @@ class EquipmentController extends Controller
 
             if($GetEquipment->isEmpty()){
                 return response()->json([
-                    'message'=>'there is no equipments in this branch',
+                    'message'=>'there is no equipments in for this employee',
                     'status code'=> http_response_code(),
                 ]);
             }

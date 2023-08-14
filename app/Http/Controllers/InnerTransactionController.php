@@ -56,6 +56,8 @@ class InnerTransactionController extends Controller
         $newBranchProduct = BranchesProducts::query()->create([
             'product_id' => $Product->product_id,
             'branch_id'=>$DestinationBranch_id,
+            'Supplier_id'=>$Product->Supplier_id,
+            'in_quantity'=>$quantity,
             'recent_quantity'=>$quantity,
             'price'=>$Product->price,
             'prod_date'=>$Product->prod_date,

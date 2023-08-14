@@ -20,11 +20,7 @@ class ProductController extends Controller
                 'status code' => 204,
             ]);
         }
-        return response()->json([
-            'data' => $products,
-            'status code' => 200
-
-        ]);   
+        return $products;   
     }
 
     public function AllProducts()
