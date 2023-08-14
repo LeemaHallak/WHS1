@@ -29,21 +29,19 @@ class BranchesProductsController extends Controller
 
     public function BranchProducts($branch_id = null)                      // all roles
     {
-        $products = BranchesProducts::when($branch_id, function($query) use ($branch_id){
-            $query->where('branch_id',$branch_id);
-        })->get()->groupBy('product_id');
+        $products = Product::whereHas('BranchProducts', function ($query) use ($branch_id) {
+            $query->when($branch_id, function($q) use ($branch_id){
+                $q->where('branch_id', $branch_id);
+            });
+        })
+        ->with('BranchProducts')
+        ->get();
+        return response()->json($products, http_response_code());
+    }
 
-        if ($products->isEmpty()) {
-            return response()->json([
-                'message' => 'no products to show',
-                'status code' => http_response_code(),
-            ]);
-        }
-        return response()->json([
-            'data' => $products->values(),
-            'status code' => http_response_code()
-
-        ]);   
+    public function ProductPurchases($productId)
+    {
+        $purchaseData = BranchesProducts::where('product_id', $productId)->with('Products')->get(); 
     }
 
     public function BranchProductDetails($product_id)                    
