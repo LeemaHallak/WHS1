@@ -12,7 +12,7 @@ class BranchController extends Controller
      */
     public function ShowBranches()
     {
-        $branches = Branch::query()->get();
+        $branches = Branch::with('address')->get();
         
         return response()->json([
             'data'=>$branches,

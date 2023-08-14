@@ -32,6 +32,7 @@ class BranchesProductsController extends Controller
         $products = BranchesProducts::when($branch_id, function($query) use ($branch_id){
             $query->where('branch_id',$branch_id);
         })->get()->groupBy('product_id');
+        
         if ($products->isEmpty()) {
             return response()->json([
                 'message' => 'no products to show',
