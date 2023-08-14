@@ -19,13 +19,13 @@ class StoringLocationsController extends Controller
                     ->whereNotNull('locationNum')
                     ->where('available_quantity', $operator, 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity']);
+                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
         }
         else {
             $location = StoringLocations::whereNotNull('locationNum')
                     ->where('available_quantity', $operator, 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity']);
+                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
         }
         return $location;
     }
@@ -57,12 +57,14 @@ class StoringLocationsController extends Controller
         ->distinct()
         ->pluck('main_section');
 
-        $unAvailableSections = StoringLocations::when($branchId, function($query) use ($branchId){
+        $unAvailable = StoringLocations::when($branchId, function($query) use ($branchId){
             $query->where('branch_id', $branchId);
         })->whereNotNull('locationNum')
         ->where('available_quantity', '=', 0)
         ->distinct()
         ->pluck('main_section');
+
+        $unAvailableSections = $unAvailable->diff($availableSections)->values()->toArray();    
 
         return response()->json([
             'available sections'=>$availableSections,
@@ -80,7 +82,7 @@ class StoringLocationsController extends Controller
                     ->whereNotNull('locationNum')
                     ->where('available_quantity', '>', 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity']);
+                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
         return response()->json($location, http_response_code());
     }
 

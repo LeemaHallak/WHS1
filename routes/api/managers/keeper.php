@@ -55,7 +55,7 @@ Route:: prefix('/keeper')->group( function (){
                 });
                 Route:: prefix('/show')->group( function (){
                     Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
-                    Route::get('/BranchManagers/{branch_id}/{role_id}',[EmployeeController::class, 'ShowBranchesAssistants']);
+                    Route::get('/BranchManagers/{role_id}/{branch_id?}',[EmployeeController::class, 'ShowBranchesManagers']);
                     Route::get('/EmployeesDetails/{emp_id}',[EmployeeController::class, 'showDetails']);
                     Route::get('showProductDetails/{id}',[ProductController::class,'showProductDetails']);
                     Route::get('showShipments',[ShipmentController::class,'showShipments']);
@@ -98,7 +98,7 @@ Route:: prefix('/keeper')->group( function (){
                 ->group(function(){
                     Route::get('costs/{type}', 'CostsStatistics');
                     Route::get('products/In/{type}', 'InProductsStatistics');
-                    Route::get('productsByproduct/In/{type}', 'InProductsByProducts');
+                    Route::get('productsByproduct/In/{type}/{product_id}/{date}/{branch_id?}', 'InProductsByProducts');
                     Route::get('products/Out/{type}', 'OutProductsStatistics');
                     Route::get('OrderIncomings/{type}', 'ordersIncomings');
                     Route::get('/earnings', 'earningsStatistics');

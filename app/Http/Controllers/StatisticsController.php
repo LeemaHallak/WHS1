@@ -94,46 +94,43 @@ class StatisticsController extends Controller
         }
     }
 
-    public function InProductsByProducts($type, $branchId = null)
-    {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
-        if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
-        }
-        $Products = BranchesProducts::query();  
-        if($branchId){
-            $Products = $Products->where('branch_id', $branchId);
-        }
-        if($type == 'daily'){
-            $dailyInProducts = $Products
-            ->selectRaw('date_in as day, product_id as product,
-                        SUM(in_quantity) as total_quantity')
-            ->groupBy('day', 'product_id')
-            ->get();
-            return $dailyInProducts;
-        }
-        elseif($type == 'monthly'){
-            $monthlyInProducts= $Products
-            ->selectRaw('MONTH(date_in) as month,
-                        YEAR(date_in) as year,
-                        product_id as product,
-                        SUM(in_quantity) as total_quantity')
-            ->groupBy('month', 'year', 'product_id')
-            ->get();
-            return $monthlyInProducts;
-        }
-        elseif($type == 'yearly'){
-            $yearlyInProducts= $Products
-            ->selectRaw('YEAR(date_in) as year,
-                        product_id as product,
-                        SUM(in_quantity) as total_quantity')
-            ->groupBy('year', 'product_id')
-            ->get();
-            return $yearlyInProducts;
+    public function InProductsByProducts($type, $product_id, $date, $branchId = null)
+{
+    $manager = auth()->guard('manager-api')->user();
+    $role = $manager->role_id;
+
+    if ($role == 1) {
+        $employee = $manager->employee;
+        $branchId = $employee->branch_id;
+    }
+
+    $Products = BranchesProducts::query();
+
+    $Products->when(isset($branchId), function ($query) use ($branchId) {
+        return $query->where('branch_id', $branchId);
+    });
+
+    $Products->where('product_id', $product_id);
+
+    if ($date) {
+        if ($type == 'daily') {
+            $Products->whereDate('date_in', $date);
+        } elseif ($type == 'monthly') {
+            $Products->whereYear('date_in', date('Y', strtotime($date)))
+                    ->whereMonth('date_in', date('m', strtotime($date)));
+        } elseif ($type == 'yearly') {
+            $Products->whereYear('date_in', $date);
         }
     }
+
+    $result = $Products->selectRaw('date_in as day, product_id as product,
+                    SUM(in_quantity) as total_quantity')
+                ->groupBy('day', 'product_id')
+                ->get();
+
+    return $result;
+}
+
 
     public function InProductsBySupplier($type, $branchId = null)
     {
