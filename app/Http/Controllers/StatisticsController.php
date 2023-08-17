@@ -22,7 +22,6 @@ use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class StatisticsController extends Controller
 {
-
     public function CostsStatistics($type, $branchId = null)
     {
         $manager = auth()->guard('manager-api')->user();
@@ -95,42 +94,39 @@ class StatisticsController extends Controller
     }
 
     public function InProductsByProducts($type, $product_id, $date, $branchId = null)
-{
-    $manager = auth()->guard('manager-api')->user();
-    $role = $manager->role_id;
+    {
+        $manager = auth()->guard('manager-api')->user();
+        $role = $manager->role_id;
 
-    if ($role == 1) {
-        $employee = $manager->employee;
-        $branchId = $employee->branch_id;
-    }
-
-    $Products = BranchesProducts::query();
-
-    $Products->when(isset($branchId), function ($query) use ($branchId) {
-        return $query->where('branch_id', $branchId);
-    });
-
-    $Products->where('product_id', $product_id);
-
-    if ($date) {
-        if ($type == 'daily') {
-            $Products->whereDate('date_in', $date);
-        } elseif ($type == 'monthly') {
-            $Products->whereYear('date_in', date('Y', strtotime($date)))
-                    ->whereMonth('date_in', date('m', strtotime($date)));
-        } elseif ($type == 'yearly') {
-            $Products->whereYear('date_in', $date);
+        if ($role == 1) {
+            $employee = $manager->employee;
+            $branchId = $employee->branch_id;
         }
+        $Products = BranchesProducts::where('product_id', $product_id);
+
+        $ProductsQ = $Products->when($branchId, function ($query) use ($branchId) {
+            return $query->where('branch_id', $branchId);
+        });
+
+        if ($date) {
+            if ($type == 'daily') {
+                $Productss = $ProductsQ->whereDate('date_in', $date);
+            } elseif ($type == 'monthly') {
+                $Productss = $ProductsQ->whereYear('date_in', date('Y', strtotime($date)))
+                        ->whereMonth('date_in', date('m', strtotime($date)));
+            } elseif ($type == 'yearly') {
+                $Products = $ProductsQ->whereYear('date_in', $date);
+            }
+        }
+
+        $result = $Productss->selectRaw('date_in as day, product_id as product,
+                        SUM(in_quantity) as total_quantity')
+                    ->groupBy('day', 'product_id')
+                    ->get();
+
+        return $result;
+
     }
-
-    $result = $Products->selectRaw('date_in as day, product_id as product,
-                    SUM(in_quantity) as total_quantity')
-                ->groupBy('day', 'product_id')
-                ->get();
-
-    return $result;
-}
-
 
     public function InProductsBySupplier($type, $branchId = null)
     {
@@ -320,7 +316,6 @@ class StatisticsController extends Controller
         ->groupBy('MONTH(transaction_date)')
         ->get();
 
-        
         $totalCosts = $TotalCosts->sum('total_cost')
                         + $totalEquipmentCosts->sum('total_cost')
                         + $totalFixingCosts->sum('total_cost')
@@ -349,14 +344,14 @@ class StatisticsController extends Controller
         }
 
         return response()->json([
-            'branch'=> $branchId,
-            'costs' => $totalCosts,
-            'equipment costs'=>$totalEquipmentCosts,
-            'Equipment fixing costs'=>$totalFixingCosts,
-            'transactions costs'=>$transactionCosts,
-            'total costs'=>$totalCosts,
-            'orders'=>$totalOrders,
-            'total salaries'=> $totalSalaries,
+            // 'branch'=> $branchId,
+            // 'costs' => $totalCosts,
+            // 'equipment costs'=>$totalEquipmentCosts,
+            // 'Equipment fixing costs'=>$totalFixingCosts,
+            // 'transactions costs'=>$transactionCosts,
+            // 'total costs'=>$totalCosts,
+            // 'orders'=>$totalOrders,
+            // 'total salaries'=> $totalSalaries,
             'data'=>$earningsByMonth,
         ]);
     }

@@ -25,7 +25,7 @@ class ProductController extends Controller
 
     public function AllProducts()
     {
-        $products = Product::get()->groupBy('Category_id');
+        $products = Product::get();
         if ($products->isEmpty()) {
             return response()->json([
                 'message' => 'no products to show',

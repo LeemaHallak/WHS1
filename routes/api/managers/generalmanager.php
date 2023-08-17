@@ -107,7 +107,7 @@ Route::prefix('/GeneralManager')->group(function(){
                 ->group(function(){
                     Route::get('costs/{type}/{branch_id?}', 'CostsStatistics');
                     Route::get('products/In/{type}/{branch_id?}', 'InProductsStatistics');
-                    Route::get('productsByproduct/In/{type}/{branch_id?}', 'InProductsByProducts');
+                    Route::get('productsByproduct/In/{type}/{product_id}/{date}/{branch_id?}', 'InProductsByProducts');
                     Route::get('products/Out/{type}/{branch_id?}', 'OutProductsStatistics');
                     Route::get('OrderIncomings/{type}/{branch_id?}', 'ordersIncomings');
                     Route::get('/earnings/{branch_id?}', 'earningsStatistics');

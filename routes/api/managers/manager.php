@@ -29,6 +29,7 @@ use App\Http\Controllers\BranchesProductsController;
 use App\Http\Controllers\ProducingCompanyController;
 use App\Http\Controllers\StoringLocationsController;
 use App\Http\Controllers\BranchesCustomersController;
+use App\Models\Category;
 
 Route:: prefix('/managers')->group( function (){ 
     Route::post('/register',[EmployeeController::class, 'register']);
@@ -54,6 +55,7 @@ Route:: prefix('/managers')->group( function (){
                 Route::get('/CHcategories/{branch_id}/{category_id}', 'ShowChildrenCategories');
                 Route::get('/AllCHcategories/{branch_id}/{category_id}', 'ShowAllChildrenCategories');
                 Route::get('/RootsCats', 'ShowRootsCategories'); 
+                Route::get('/All', 'showAll');
             });
             Route::controller(AddressController::class)->group(function(){
                 Route::get('/countries', 'showCountries');
@@ -74,8 +76,10 @@ Route:: prefix('/managers')->group( function (){
             Route::get('/equipmentFixes/{equipment_id}', [EquipmentFixController::class, 'showEquipmentsFixes' ]);
             Route::get('/employees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
             Route::get('/units', [UnitController::class, 'showUnits']);
-            Route::get('showShipments',[ShipmentController::class,'showShipments']);
-            Route::get('ShipmentDetails/{id}',[ShipmentController::class,'ShipmentDetails']);
+            Route::get('/showShipments',[ShipmentController::class,'showShipments']);
+            Route::get('/ShipmentDetails/{id}',[ShipmentController::class,'ShipmentDetails']);
+            Route::get('/requests', [Approve::class, 'showRequests']);
+            Route::get('/BranchManagers/{role_id}/{branch_id?}',[EmployeeController::class, 'ShowBranchesManagers']);
         });
         Route::prefix('/Add')->group(function(){
             Route::post('/assistants',[EmployeeController::class, 'addAK']);  //define, Gate

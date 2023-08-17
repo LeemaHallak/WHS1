@@ -6,6 +6,7 @@ use App\Models\Category;
 use Cjmellor\Approval\Concerns\MustBeApproved;
 use Cjmellor\Approval\Models\Approval;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Approve extends Controller
 {
@@ -34,5 +35,11 @@ class Approve extends Controller
         }
     }
 
+    public function showRequests()
+    {
+        $Responsible = Auth::id();
+        $requests = Approval::where('ResponsibleManager_id', $Responsible)->get();
+        return response()->json($requests);
+    }
     
 }

@@ -27,7 +27,7 @@ class DeleteList extends Command
      */
     public function handle(): void
     {
-        $OrderList = OrderList::where('ordered', '==', 0);
+        $OrderList = OrderList::where('orderd', '==', 0);
         $timeCond = $OrderList->value('created_at')->format('d/m/Y');
         $TimeCondC = Carbon::createFromFormat('d/m/Y', $timeCond);
         $Condition = $TimeCondC->addDay();

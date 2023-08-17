@@ -55,7 +55,6 @@ Route:: prefix('/keeper')->group( function (){
                 });
                 Route:: prefix('/show')->group( function (){
                     Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
-                    Route::get('/BranchManagers/{role_id}/{branch_id?}',[EmployeeController::class, 'ShowBranchesManagers']);
                     Route::get('/EmployeesDetails/{emp_id}',[EmployeeController::class, 'showDetails']);
                     Route::get('showProductDetails/{id}',[ProductController::class,'showProductDetails']);
                     Route::get('showShipments',[ShipmentController::class,'showShipments']);

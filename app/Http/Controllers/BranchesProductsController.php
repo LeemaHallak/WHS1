@@ -39,16 +39,12 @@ class BranchesProductsController extends Controller
         return response()->json($products, http_response_code());
     }
 
-    public function ProductPurchases($productId)
-    {
-        $purchaseData = BranchesProducts::where('product_id', $productId)->with('Products')->get(); 
-    }
-
     public function BranchProductDetails($product_id)                    
     {
-        $details = BranchesProducts::where('product_id', $product_id);
-        $showDetails= $details->with('products')->get();
-        $sumQuantity = $details->sum('recent_quantity');
+        $systmeProduct = BranchesProducts::find($product_id)->product_id;
+        $branch = BranchesProducts::find($product_id)->branch_id;
+        $details = BranchesProducts::where('id', $product_id)->with('products.producing_companies')->get();
+        $sumQuantity = BranchesProducts::where('product_id', $systmeProduct)->where('branch_id', $branch)->sum('recent_quantity');
         
         if (!$details) {
             return response()->json([
@@ -57,7 +53,7 @@ class BranchesProductsController extends Controller
             ]);
         }
         return response()->json([
-            'Details' => $showDetails,
+            'Details' => $details,
             'quanty' =>$sumQuantity,
             'status code' => http_response_code()
         ]);   

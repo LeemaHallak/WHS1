@@ -18,6 +18,12 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function showAll()
+    {
+        $categories = Category::all();
+        return response()->json($categories);
+    }
+
     public function ShowParentsCategories(Request $request)
     {
         $id = $request->input('id');
