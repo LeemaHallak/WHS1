@@ -7,6 +7,7 @@ use App\Models\Shipment;
 use App\Models\ShipmentKeeper;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Spatie\FlareClient\Http\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ShipmentController extends Controller
@@ -183,6 +184,12 @@ class ShipmentController extends Controller
         return response()->json([
             'message' => 'Shipment updated successfully'
         ]);
+    }
+
+    public function shipmentArrive($shipmentId)
+    {
+        Shipment::find($shipmentId)->update(['arrived' => 1]);
+        return response()->json('updated');
     }
     
 }
