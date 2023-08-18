@@ -68,7 +68,7 @@ class OrderController extends Controller
             $branchId = $employee->branch_id;
         }
         $branch = Branch::find($branchId);
-        $order = $branch->orders()->with('OrderList')->get();
+        $order = $branch->orders()->with('OrderList.customers')->get();
         return response()->json([
             'orders'=>$order,
             'stauts code'=>http_response_code(),

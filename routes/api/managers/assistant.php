@@ -36,9 +36,9 @@ Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(
         'middleware'=>'assistant',], function(){
             Route:: prefix('/Add')->group( function (){
                 Route::post('/exequipApprove/{equipment_id}',  [EquipmentController::class, 'AddExistingEquipmentAssis' ] );
-                Route::post('/Asisstant_AddNewProduct',[ProductController::class,'storeAssis']);
-                Route::post('/Assistant_storeProduct',[BranchesProductsController::class,'Assistant_storeProduct']);
-                Route::post('/Ass_Addcategories',[CategoryController::class, 'approveAddCat']);
+                Route::post('/NewProduct',[ProductController::class,'storeAssis']);
+                Route::post('/storeProduct',[BranchesProductsController::class,'Assistant_storeProduct']);
+                Route::post('/categories',[CategoryController::class, 'approveAddCat']);
             });
 //AddExistingEquipmentAssis
             Route:: prefix('/show')->group( function (){
@@ -52,8 +52,8 @@ Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(
                 Route::get('showOrderProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
         });
         Route::prefix('/edit')->group(function(){
-            Route::post('/Assistant_editProduct/{id}',[BranchesProductsController::class, 'Assistant_editProduct']);
-            Route::post('/Assistant_editCategory/{id}',[CategoryController::class, 'Assistant_editCategory']);
+            Route::post('/Product/{id}',[BranchesProductsController::class, 'Assistant_editProduct']);
+            Route::post('/category/{id}',[CategoryController::class, 'Assistant_editCategory']);
         });
         }
     );
