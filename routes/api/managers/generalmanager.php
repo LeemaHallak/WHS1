@@ -37,6 +37,10 @@ Route::prefix('/GeneralManager')->group(function(){
     Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(){
         Route::group([ 
             'middleware'=>'general_manager',], function(){
+<<<<<<< HEAD
+=======
+                Route::put('/arrive/{id}', [ShipmentController::class, 'shipmentArrive']);
+>>>>>>> c49dff98 (neew)
                 Route:: prefix('/Add')->group( function (){
                     Route::post('/Branch',[BranchController::class, 'store']); 
                     Route::post('/NewProduct',[ProductController::class,'store']);

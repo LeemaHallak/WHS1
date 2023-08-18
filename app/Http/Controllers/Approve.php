@@ -39,7 +39,11 @@ class Approve extends Controller
     {
         $Responsible = Auth::id();
         $requests = Approval::where('ResponsibleManager_id', $Responsible)->get();
+<<<<<<< HEAD
         return response()->json($requests);
+=======
+        return response()->json(['list'=>$requests]);
+>>>>>>> c49dff98 (neew)
     }
     
 }

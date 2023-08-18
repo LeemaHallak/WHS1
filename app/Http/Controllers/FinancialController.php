@@ -48,7 +48,11 @@ class FinancialController extends Controller
         ]);
     }
 
+<<<<<<< HEAD
     public function store(Request $request)
+=======
+    public function store()
+>>>>>>> c49dff98 (neew)
     {
         $currMonth = Carbon::now()->format('F');
         $currShipment = Shipment::WhereMonth('shipment_date', $currMonth);
