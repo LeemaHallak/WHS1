@@ -102,10 +102,6 @@ Route:: prefix('/keeper')->group( function (){
                     Route::get('OrderIncomings/{type}', 'ordersIncomings');
                     Route::get('/earnings', 'earningsStatistics');
                 });
-                Route::controller(Approve::class)->group(function(){
-                    Route::post('/update/{requet_id}', 'updateState');
-                    Route::post('/reject/{request_id}', 'reject');
-                }); 
             }
         );
     });

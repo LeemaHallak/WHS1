@@ -12,9 +12,7 @@ class OrderProductsController extends Controller
 {
 
     public function store(Request $request)
-    {
-        $this->authorize('add Order_Product');
-        
+    {        
         $orderList = $request->orderList;
         $BranchProduct_id = $request->BranchProduct_id;
         $quantity = $request->quantity;

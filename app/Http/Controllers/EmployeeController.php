@@ -33,15 +33,7 @@ class EmployeeController extends Controller
             'position'=> 'required',
         ]);
 
-        $image_name_to_store = 'default.png';
-        if ($request->hasFile('image'))
-        {
-            $imagenameWithExt=$request->file('image')->getClientOriginalName();
-            $imagename=pathinfo($imagenameWithExt,PATHINFO_FILENAME);
-            $extension=$request->file('image')->getClientOriginalExtension();
-            $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
-            $request->file('image')->storeAs('public/images',$image_name_to_store);
-        }
+        $image_url = '/storage/' . $request->file('image')->store('employees', 'public');
 
         $employee = Employee ::query()->create([
             'employee_name' => $request->employee_name ,
@@ -50,7 +42,7 @@ class EmployeeController extends Controller
             'address_id'=> $request->address_id,
             'branch_id' => $branch_id,
             'salary'=>$request->salary,
-            'photo'=>$image_name_to_store,
+            'photo'=>$image_url,
             'position'=>$position,
             'is_manager'=> $is_manager,
         ]);
@@ -133,15 +125,7 @@ class EmployeeController extends Controller
                 'salary' => 'required',
             ]);
 
-            $image_name_to_store = 'default.png';
-            if ($request->hasFile('image'))
-            {
-                $imagenameWithExt=$request->file('image')->getClientOriginalName();
-                $imagename=pathinfo($imagenameWithExt,PATHINFO_FILENAME);
-                $extension=$request->file('image')->getClientOriginalExtension();
-                $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
-                $request->file('image')->storeAs('public/images',$image_name_to_store);
-            }
+            $image_url = '/storage/' . $request->file('image')->store('employees', 'public');
     
             $employee = Employee ::query()->create([
                 'employee_name' => $request->employee_name ,
@@ -150,7 +134,7 @@ class EmployeeController extends Controller
                 'address_id'=> $request->address_id,
                 'branch_id' => $branch_id,
                 'salary'=>$request->salary,
-                'photo'=>$image_name_to_store,
+                'photo'=>$image_url,
                 'position'=>$request->position,
                 'is_manager'=> $is_manager,
             ]);

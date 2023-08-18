@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\BranchesProducts;
 use App\Models\BranchesProductsAssis;
+use App\Models\OrderList;
+use App\Models\OrderProducts;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,10 +43,11 @@ class BranchesProductsController extends Controller
 
     public function BranchProductDetails($product_id)                    
     {
-        $systmeProduct = BranchesProducts::find($product_id)->product_id;
-        $branch = BranchesProducts::find($product_id)->branch_id;
-        $details = BranchesProducts::where('id', $product_id)->with('products.producing_companies')->get();
-        $sumQuantity = BranchesProducts::where('product_id', $systmeProduct)->where('branch_id', $branch)->sum('recent_quantity');
+        $product = BranchesProducts::with(['Products', 'Products.producing_companies'])->find($product_id);
+        $systemProduct = $product->product_id;
+        $branch = $product->branch_id;
+        $details = $product;
+        $sumQuantity = BranchesProducts::where('product_id', $systemProduct)->where('branch_id', $branch)->sum('recent_quantity');
         
         if (!$details) {
             return response()->json([
@@ -176,5 +179,23 @@ class BranchesProductsController extends Controller
         return response()->json([
             'message' => 'waiting for the keeper aprove...'
         ]);
+    }
+
+    public function ProductTransition($productId)
+    {
+        $product = BranchesProducts::find($productId);
+        $systemProduct = $product->product_id;
+        $branch = $product->branch_id;
+        $inProduct = BranchesProducts::where('product_id', $systemProduct)->where('branch_id', $branch)
+            ->selectRaw('"in" as state, date_in, in_quantity, in_quantity * buying_cost as total_cost')
+            ->get();
+        $outProduct = OrderProducts::join('order_lists', 'order_lists.id', '=', 'order_products.OrderList_id')
+            ->join('orders', 'orders.OrderList_id', '=', 'order_lists.id')
+            ->where('order_products.BranchesProducts_id', $productId)
+            ->selectRaw('"out" as state, orders.order_date, order_products.quantity, order_products.total_price')
+            ->get();
+        $productTransation = $inProduct->concat($outProduct);
+        
+        return response()->json($productTransation);
     }
 }

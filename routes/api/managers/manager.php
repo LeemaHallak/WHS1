@@ -45,6 +45,7 @@ Route:: prefix('/managers')->group( function (){
                 Route::get('/BranchProducts/{branch_id?}', 'BranchProducts');
                 Route::get('/Details/{product_id}', 'BranchProductDetails');
                 Route::get('/BranchCatProducts/{branch_id}/{category_id}', 'BranchesCatProducts');
+                Route::get('/productTransition/{productId}', 'ProductTransition');
             });
             Route::controller(EquipmentController::class)->group(function(){
                 Route::get('/equipment/{branch_id}', 'ShowEquipment');
@@ -89,5 +90,9 @@ Route:: prefix('/managers')->group( function (){
         Route::prefix('/edit')->group(function(){
             Route::post('/editShipment/{id}',[ShipmentController::class, 'editShipment']);
         });
+        Route::controller(Approve::class)->group(function(){
+            Route::post('/update/{requet_id}', 'updateState');
+            Route::post('/reject/{request_id}', 'reject');
+        }); 
     });
 });  

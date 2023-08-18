@@ -11,25 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderListController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function StartOrder(Request $request)
     {
         $role = auth()->guard('manager-api')->user()->role_id;
@@ -42,7 +23,11 @@ class OrderListController extends Controller
             'order_cost' => 0.0,
             'orderd'=> 0,
         ]);
-        return $OrderList;
+        $order = (new OrderProductsController)->joostore($request);
+        return [
+            'order list' => $OrderList,
+            'order' => $order,
+        ];
     }
 
     public function ordering(Request $request)

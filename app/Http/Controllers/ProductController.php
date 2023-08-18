@@ -50,15 +50,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $image_name_to_store = 'default.png';
-        if ($request->hasFile('image'))
-        {
-            $imagenameWithExt=$request->file('image')->getClientOriginalName();
-            $imagename=pathinfo($imagenameWithExt,PATHINFO_FILENAME);
-            $extension=$request->file('image')->getClientOriginalExtension();
-            $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
-            $request->file('image')->storeAs('public/images',$image_name_to_store);
-        }
+        $image_url = '/storage/' . $request->file('image')->store('products', 'public');
 
         $product = Product::query()->create([
             'product_name'=> $request->input('product_name'),
@@ -73,22 +65,14 @@ class ProductController extends Controller
             'size'=>$request->input('size'),
             'SUnit'=>$request->input('SUnit'),
             'box_quantity'=>$request->input('box_quantity'),
-            'image'=>$image_name_to_store,
+            'image'=>$image_url,
         ]);
         return response()->json([$product,201]);
     }
 
     public function storeAssis(Request $request)
     {
-        $image_name_to_store = 'default.png';
-        if ($request->hasFile('image'))
-        {
-            $imagenameWithExt=$request->file('image')->getClientOriginalName();
-            $imagename=pathinfo($imagenameWithExt,PATHINFO_FILENAME);
-            $extension=$request->file('image')->getClientOriginalExtension();
-            $image_name_to_store=$imagename . '_' . time() . '.' . $extension;
-            $request->file('image')->storeAs('public/images',$image_name_to_store);
-        }
+        $image_url = '/storage/' . $request->file('image')->store('products', 'public');
         $product = ProductAssis::query()->create([
             'product_name'=> $request->input('product_name'),
             'InnerCategory_id'=> $request->input('Inner_Category_id'),
@@ -103,7 +87,7 @@ class ProductController extends Controller
             'size'=>$request->input('size'),
             'SUnit_id'=>$request->input('SUnit_id'),
             'box_quantity'=>$request->input('box_quantity'),
-            'image'=>$image_name_to_store,
+            'image'=>$image_url,
         ]);
         return response()->json([$product,201]);
     }
