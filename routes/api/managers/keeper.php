@@ -90,7 +90,7 @@ Route:: prefix('/keeper')->group( function (){
                     });
                     Route::post('/new', [OrderListController::class, 'StartOrder']);
                     Route::post('/addProducts',[OrderProductsController::class, 'store']);
-                    Route::post('/Orderd', [OrderListController::class, 'ordering']);
+                    Route::put('/Orderd/{orderlistId}', [OrderListController::class, 'ordering']);
                 });
                 Route::controller(StatisticsController::class)
                 ->prefix('/statistics')

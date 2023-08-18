@@ -23,18 +23,14 @@ class OrderListController extends Controller
             'order_cost' => 0.0,
             'orderd'=> 0,
         ]);
-        $order = (new OrderProductsController)->joostore($request);
         return [
             'order list' => $OrderList,
-            'order' => $order,
         ];
     }
 
-    public function ordering(Request $request)
+    public function ordering($orderlistId)
     {
-        $OrderList_id = $request->OrderList_id;
-        $ordered = $request->ordered;
-        $updtaing = OrderList::query()->find($OrderList_id)->update(['ordered'=> $ordered]);
+        $updtaing = OrderList::query()->find($orderlistId)->update(['ordered'=> 1]);
         return response()->json(['data'=>$updtaing,'status code'=>200]);
     }
 

@@ -12,8 +12,10 @@ class OrderProductsController extends Controller
 {
 
     public function store(Request $request)
-    {        
-        $orderList = $request->orderList;
+    {
+        
+            $orderList = $request->orderList;
+        
         $BranchProduct_id = $request->BranchProduct_id;
         $quantity = $request->quantity;
 
