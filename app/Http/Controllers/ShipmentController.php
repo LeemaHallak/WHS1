@@ -189,7 +189,7 @@ class ShipmentController extends Controller
     public function shipmentArrive($shipmentId)
     {
         Shipment::find($shipmentId)->update(['arrived' => 1]);
-        return response()->json(['updated', http_response_code()]);
+        return response()->json('updated');
     }
     
 }
