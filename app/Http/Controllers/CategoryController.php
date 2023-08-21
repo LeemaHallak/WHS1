@@ -79,7 +79,7 @@ class CategoryController extends Controller
         {
             $massage = false;
             return response()->json([
-                'massage'=> $massage, 
+                'message'=> $massage, 
                 'data'=>$products,
                 'status code'=>200,
             ]);

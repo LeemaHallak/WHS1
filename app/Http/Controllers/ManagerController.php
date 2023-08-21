@@ -15,10 +15,10 @@ class ManagerController extends Controller
     public function LogIn (Request $request)
     {
         $LogInData = $request-> validate([
-            'phone_number' =>'required|exists:employees',
+            'email' =>'required|exists:employees',
             'password'=>'required',
         ]);
-        $employee = Employee::firstWhere('phone_number', $LogInData['phone_number']);
+        $employee = Employee::firstWhere('email', $LogInData['email']);
 
         if ($employee) {
             if ($employee->manager && Hash::check($LogInData['password'], $employee->manager->password)) {
@@ -26,11 +26,15 @@ class ManagerController extends Controller
                 $manager = $employee->manager;
                 $success =  $manager;
                 $success['token'] =  $manager->createToken('MyApp',['manager'])->accessToken; 
-                return response()->json($success, 200);
+                $employee = Employee::find($manager->employee_id)->select('branch_id')->first();
+                return response()->json([
+                   'data' => $success,
+                   'employeeData' => $employee
+                ], 200);
                 
             }
             else if (!$employee->manager){
-                return response()->json(['message' => 'wrong phone number'], 401);
+                return response()->json(['message' => 'wrong email'], 401);
             }
             else if (!Hash::check($LogInData['password'], $employee->manager->password)){
                 return response()->json(['message' => 'wrong password'], 401);
@@ -42,11 +46,13 @@ class ManagerController extends Controller
         $manager = $request->user();
         $accessToken = $manager->createToken('personal access token');
         $manager ['remember_token'] = $accessToken;
-
+        $employee = Employee::find($manager->employee_id)->select('branch_id')->first();
         return response()->json([
             'data' => $manager,
+            'employee' => $employee,
             'typeToken' => 'Bearer',
             'token' => $accessToken->accessToken
+        
         ], 200);
     }
 
