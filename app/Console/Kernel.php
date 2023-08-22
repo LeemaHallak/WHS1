@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Models\OrderList;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\DeleteList;
+use App\Console\Commands\MakeFinancialReport;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -15,6 +16,7 @@ class Kernel extends ConsoleKernel
 
     protected $commands = [
         DeleteList::class,
+        MakeFinancialReport::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -22,6 +24,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('remove:list')
         ->everyMinute()
         ->runInBackground();
+        $schedule->command('app:make-financial-report')->everyMinute();
+        //->monthlyOn(19, '00:53');
     }
 
     /**

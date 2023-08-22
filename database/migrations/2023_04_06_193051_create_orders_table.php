@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();            
-            $table->foreignId('OrderList_id')->constrained('order_lists');
-            $table->foreignId('shipment_id')->constrained('shipments');
+            $table->foreignId('OrderList_id')->constrained('order_lists')->cascadeOnDelete();
+            $table->foreignId('shipment_id')->constrained('shipments')->cascadeOnDelete();
             $table->date('order_date');
             $table->boolean('ready');
             $table->boolean('arrived');

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('costs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->constrained('branches');
-            $table->foreignId('manager_id')->constrained('managers');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
+            $table->foreignId('manager_id')->constrained('managers')->cascadeOnDelete();
             $table->text('content');
             $table->date('date');
             $table->double('cost');

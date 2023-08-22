@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('company_code');
             $table->string('company_name');
-            $table->foreignId('address_id')->constrained('addresses');
+            $table->foreignId('address_id')->constrained('addresses')->cascadeOnDelete();
             $table->string('phone_number');
             $table->string('email');
-            $table->string('company_register');
-            $table->string('industry_register');
+            $table->string('company_register')->nullable();
+            $table->string('industry_register')->nullable();
             $table->timestamps();
         });
     }

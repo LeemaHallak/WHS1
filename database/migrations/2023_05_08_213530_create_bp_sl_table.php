@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('bp_sls', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('BranchesProduct_id')->constrained('branches_products');
-            $table->foreignId('StoringLocation_id')->constrained('storing_locations');
+            $table->foreignId('BranchesProduct_id')->constrained('branches_products')->cascadeOnDelete();
+            $table->foreignId('StoringLocation_id')->constrained('storing_locations')->cascadeOnDelete();
             $table->timestamps();
         });
     }

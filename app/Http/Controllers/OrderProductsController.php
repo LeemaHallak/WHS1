@@ -14,7 +14,7 @@ class OrderProductsController extends Controller
     public function store(Request $request)
     {
         
-            $orderList = $request->orderList;
+        $orderList = $request->orderList;
         
         $BranchProduct_id = $request->BranchProduct_id;
         $quantity = $request->quantity;
@@ -45,7 +45,7 @@ class OrderProductsController extends Controller
 
     public function createOrder($Product, $OrderList, $quantity, $BranchProduct_id, $orderList)
     {
-        $role = auth()->guard('manager-api')->user()->role_id;
+        //$role = auth()->guard('manager-api')->user()->role_id;
         $ProductQuantity = $Product->value('recent_quantity');
         $IfOrdered = $OrderList->value('orderd');
         if($IfOrdered == 0 && $ProductQuantity >= $quantity )

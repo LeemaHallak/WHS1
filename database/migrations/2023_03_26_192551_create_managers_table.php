@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('managers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees');
+            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->string('password');
             $table->foreignId('role_id')->constrained('roles');
             $table->rememberToken();

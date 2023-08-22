@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('employee_name');
             $table->string('email')->unique();
             $table->string('phone_number');
-            $table->foreignId('address_id')->constrained('addresses');
-            $table->foreignId('branch_id')->constrained('branches');
+            $table->foreignId('address_id')->nullable()->constrained('addresses')->nullOnDelete();
+            $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete();
             $table->double('salary');
             $table->string('photo');
             $table->string('position');

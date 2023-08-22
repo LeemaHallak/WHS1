@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('shipping_company');
             $table->enum('I\O', ['in', 'out']);
-            $table->foreignId('SourceAddress_id')->constrained('addresses');
-            $table->foreignId('DestinationAddress_id')->constrained('addresses');
+            $table->foreignId('SourceAddress_id')->constrained('addresses')->cascadeOnDelete();
+            $table->foreignId('DestinationAddress_id')->constrained('addresses')->cascadeOnDelete();
             $table->date('shipment_date');
             $table->enum('shipment_type', ['overland', 'air', 'sea']);
             $table->integer('max_quantity');
