@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('address_id')->constrained('addresses');
+            $table->foreignId('address_id')->nullable()->constrained('addresses')->nullOnDelete();
             $table->string('phone_number');
             $table->double('space');
             $table->integer('sectionMaxCapacity');

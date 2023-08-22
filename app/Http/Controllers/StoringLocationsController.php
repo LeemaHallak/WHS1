@@ -19,13 +19,13 @@ class StoringLocationsController extends Controller
                     ->whereNotNull('locationNum')
                     ->where('available_quantity', $operator, 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
+                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
         }
         else {
             $location = StoringLocations::whereNotNull('locationNum')
                     ->where('available_quantity', $operator, 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
+                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
         }
         return $location;
     }
@@ -82,7 +82,7 @@ class StoringLocationsController extends Controller
                     ->whereNotNull('locationNum')
                     ->where('available_quantity', '>', 0)
                     ->orderBy('available_quantity')
-                    ->get(['locationNum', 'available_quantity', 'unavailable_quantity']);
+                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
         return response()->json($location, http_response_code());
     }
 
@@ -109,8 +109,8 @@ class StoringLocationsController extends Controller
             'main_section'=> $main_section,
             'section'=>$section,
             'branch_id'=>$branch_id,
+            'total_quantity'=> $request->total_quantity,
             'available_quantity'=> $request->available_quantity,
-            'unavailable_quantity'=> $request->unavailable_quantity,
             'locationNum'=> $locationNum ,
         ]);
         return response()->json($location->locationNum);

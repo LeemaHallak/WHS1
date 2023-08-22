@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('financials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->constrained('branches');
             $table->string('month');
             $table->timestamps();
             $table->double('outgoings');

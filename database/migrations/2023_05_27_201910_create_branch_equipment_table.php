@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('branch_equipment', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->constrained('branches');
-            $table->foreignId('equipment_id')->constrained('equipment');
-            $table->foreignId('employee_id')->constrained('employees');
+            $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete();
+            $table->foreignId('equipment_id')->constrained('equipment')->cascadeOnDelete();
+            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->integer('quantity');
             $table->double('cost');
             $table->date('date_in');

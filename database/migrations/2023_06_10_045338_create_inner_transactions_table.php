@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('inner_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('BranchProduct_id')->constrained('branches_products');
-            $table->foreignId('SourceBranch_id')->constrained('branches');
-            $table->foreignId('DestinationBranch_id')->constrained('branches');
+            $table->foreignId('BranchProduct_id')->constrained('branches_products')->cascadeOnDelete();
+            $table->foreignId('SourceBranch_id')->constrained('branches')->cascadeOnDelete();
+            $table->foreignId('DestinationBranch_id')->constrained('branches')->cascadeOnDelete();
             $table->integer('quantity');
             $table->date('transaction_date');
             $table->double('transaction_cost');

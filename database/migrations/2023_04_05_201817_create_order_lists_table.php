@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('order_lists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained('users');
-            $table->foreignId('branch_id')->nullable()->constrained('branches');
+            $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->cascadeOnDelete();
             $table->integer('order_quantity');
             $table->double('order_cost');
             $table->double('order_earnings');

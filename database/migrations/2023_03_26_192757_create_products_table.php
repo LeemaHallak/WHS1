@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('UPC_code');
             $table->string('product_code');
-            $table->foreignId('ProducingCompany_id')->constrained('producing_companies');
+            $table->foreignId('ProducingCompany_id')->constrained('producing_companies')->cascadeOnDelete();
             $table->string('product_name');
-            $table->foreignId('Category_id')->constrained('categories');
+            $table->foreignId('Category_id')->constrained('categories')->cascadeOnDelete();
             $table->text('description');
             $table->string('image');
             $table->double('weight');

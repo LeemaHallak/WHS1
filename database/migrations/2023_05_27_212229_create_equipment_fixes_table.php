@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('equipment_fixes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('equipment_id')->constrained('branch_equipment');
+            $table->foreignId('equipment_id')->nullable()->constrained('branch_equipment')->nullOnDelete();
             $table->date('damage_date');
             $table->date('fix_date')->nullable();
             $table->double('fixing_cost');

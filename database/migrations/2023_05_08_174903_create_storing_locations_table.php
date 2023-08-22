@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('main_section');
             $table->string('section');
-            $table->foreignId('branch_id')->constrained('branches');
+            $table->foreignId('branch_id')->constrained('branches')->cascadeOnDelete();
+            $table->integer('total_quantity');
             $table->integer('available_quantity');
-            $table->integer('unavailable_quantity');
             $table->string('locationNum')->nullable();
             $table->timestamps();
             $table->unique(['main_section','section','branch_id']);
