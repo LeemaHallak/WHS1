@@ -88,7 +88,7 @@ Route::prefix('/GeneralManager')->group(function(){
                         Route::delete('/financial/{id}',[FinancialController::class, 'RemoveFinancial']);
                         Route::delete('/order/{id}',[OrderController::class, 'RemoveOrder']);
                     });
-                });
+                });//kkkk
 
                 Route::prefix('/order')->group(function(){
                     Route::controller(OrderController::class)->group(function(){
