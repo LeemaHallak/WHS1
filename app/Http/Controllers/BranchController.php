@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class BranchController extends Controller
 {
@@ -15,9 +16,8 @@ class BranchController extends Controller
         $branches = Branch::with('address')->get();
         
         return response()->json([
-            'data'=>$branches,
-            'status code'=> http_response_code(),
-        ]);
+            'data'=>$branches
+        ], Response::HTTP_FOUND);
     }
 
     public function BranchDetails($id)
@@ -35,21 +35,10 @@ class BranchController extends Controller
         ])->find($id);
         
         return response()->json(
-            $branchDetails
+            $branchDetails, Response::HTTP_FOUND
             );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $this-> validate($request, [
@@ -66,39 +55,7 @@ class BranchController extends Controller
                 'sectionMaxCapacity'=> $request->section_maxCapacity,
             ]);
             return response()->json([
-                'data'=>$branch,
-                'status code'=> http_response_code(),
-            ]);
-    }
-    /**
-     * Display the specified resource.
-     */
-    public function show(branch $branch)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(branch $branch)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, branch $branch)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(branch $branch)
-    {
-        //
+                'data'=>$branch
+            ], Response::HTTP_OK);
     }
 }

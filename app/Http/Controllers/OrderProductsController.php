@@ -45,7 +45,8 @@ class OrderProductsController extends Controller
 
     public function createOrder($Product, $OrderList, $quantity, $BranchProduct_id, $orderList)
     {
-        //$role = auth()->guard('manager-api')->user()->role_id;
+        if (auth()->guard('manager-api'))
+            $role = auth()->guard('manager-api')->user()->role_id;
         $ProductQuantity = $Product->value('recent_quantity');
         $IfOrdered = $OrderList->value('orderd');
         if($IfOrdered == 0 && $ProductQuantity >= $quantity )

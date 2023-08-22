@@ -163,10 +163,6 @@ class EmployeeController extends Controller
         
     }
 
-
-    /**
-     * Display a listing of the resource.
-     */
     public function ShowEmployees()
     {
         $employees = Employee::all();
@@ -232,10 +228,6 @@ class EmployeeController extends Controller
                     'assistants'=>$assistants,
                 ],http_response_code());
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
 
     public function showDetails($emp_id)
     {

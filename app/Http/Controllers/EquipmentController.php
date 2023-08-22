@@ -14,163 +14,64 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class EquipmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-    public function showAllEquipments(Request $request) //default: branch
+    public function showAllEquipments(Request $request, $branchId = null) 
     {
-
         $getBy = $request->input('get_by');
-        $employee_id = $request->employee_id;
-        $date = $request->date_in;
-        $branch_id = $request->branch_id;
-        $name = $request->name;
-        $GetEquipment = BranchesEquipments::query()->with('equipments');
-
-        if ($getBy == 'branch'){
-            $GetEquipment = $GetEquipment->where('branch_id', $branch_id)->get();
-
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in this branch',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json([
-                'data'=>$GetEquipment,
-                'status code'=> http_response_code(),
-            ]);
+        $queryParams = $request->only(['employee_id', 'date_in', 'branch_id', 'name']);
+        $GetEquipment = BranchesEquipments::query()->with('equipments')->when($branchId, function ($query) use ($branchId) {
+            return $query->where('branch_id', $branchId);
+        });
+    
+        if ($getBy == 'branch') {
+            $GetEquipment = $GetEquipment->where('branch_id', $queryParams['branch_id'])->get();
+        } 
+        elseif ($getBy == 'employee') {
+            $GetEquipment = $GetEquipment->where('employee_id', $queryParams['employee_id'])->get();
         }
-
-        if ($getBy == 'employee'){
-            $GetEquipment = $GetEquipment->where('employee_id', $employee_id)->get();
-
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in for this employee',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json([
-                'data'=>$GetEquipment,
-                'status code'=> http_response_code(),
-            ]);
-        }
-
-        if ($getBy == 'date in'){
-            $Equipment = $GetEquipment->where('date_in', $date);
+        elseif ($getBy == 'date in') {
+            $Equipment = $GetEquipment->where('date_in', $queryParams['date_in']);
             $GetEquipment = $Equipment->get();
             $LotQuantity = $Equipment->sum('quantity');
             $LotCost = $Equipment->sum('cost');
-
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments ',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json([
-                'Equipments'=>$GetEquipment,
-                'total quantities in this lot' => $LotQuantity,
-                'total cost for this purchase lot '=> $LotCost,
-                'status code'=> http_response_code(),
-            ]);
-        }
-
-        if ($getBy == 'name'){
-            $Equipment = $GetEquipment->whereHas('equipments', function($q) use ($name){
-                $q->where('equipment_name', $name);
+        } 
+        elseif ($getBy == 'name') {
+            $Equipment = $GetEquipment->whereHas('equipments', function($q) use ($queryParams){
+                $q->where('equipment_name', $queryParams['name']);
             });
             $GetEquipment = $Equipment->get();
             $EquipmentQuantity = $Equipment->sum('quantity');
-
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in this branch',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json([
-                'Equipments'=>$GetEquipment,
-                'total quantities' => $EquipmentQuantity,
-                'status code'=> http_response_code(),
-            ]);
         }
-        
-    }
-
     
-    public function showEquipment($branch_id, Request $request)
-    {
-
-        $getBy = $request->input('get_by');
-        $employee_id = $request->employee_id;
-        $date = $request->date_in;
-        $name = $request->name;
-        $GetEquipment = BranchesEquipments::join('equipment','branch_equipment.equipment_id','=','equipment.id')->where('branch_id', $branch_id);
-
-        if ($getBy == 'employee'){
-            $GetEquipment = $GetEquipment->where('employee_id', $employee_id)->get();
-
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in this branch',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json(
-                $GetEquipment
-            );
-        }
-
-        if ($getBy == 'date in'){
-            $Equipment = $GetEquipment->where('date_in', $date);
-            $GetEquipment = $Equipment->get();
-            $LotQuantity = $Equipment->sum('quantity');
-            $LotCost = $Equipment->sum('cost');
-            $data = [$GetEquipment,$LotQuantity,$LotCost];
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in this branch',
-                    'status code'=> http_response_code(),
-                ]);
-            }
+        if ($GetEquipment->isEmpty()) {
             return response()->json([
-                'Equipments'=>$GetEquipment,
+                'message' => 'No equipment found',
+                'status code' => http_response_code(),
+            ]);
+        }
+    
+        if (isset($LotQuantity) && isset($LotCost)) {
+            return response()->json([
+                'Equipments' => $GetEquipment,
                 'total quantities in this lot' => $LotQuantity,
-                'total cost for this purchase lot '=> $LotCost,
-                'status code'=> http_response_code(),
+                'total cost for this purchase lot' => $LotCost,
+                'status code' => http_response_code(),
             ]);
         }
-
-        if ($getBy == 'name'){
-            $Equipment = Branch::find($branch_id)->equipments()->where('equipment_name', $name);
-            $GetEquipment = $Equipment->get();
-            $EquipmentQuantity = $Equipment->sum('quantity');
-            $data = [$GetEquipment,$EquipmentQuantity];
+    
+        if (isset($EquipmentQuantity)) {
             return response()->json([
-                'Equipments'=>$data,
+                'Equipments' => $GetEquipment,
                 'total quantities' => $EquipmentQuantity,
-                'status code'=> http_response_code(),
+                'status code' => http_response_code(),
             ]);
         }
-
-        elseif ($getBy == null ){
-            $GetEquipment = $GetEquipment->get();
-            if($GetEquipment->isEmpty()){
-                return response()->json([
-                    'message'=>'there is no equipments in this branch',
-                    'status code'=> http_response_code(),
-                ]);
-            }
-            return response()->json(
-                $GetEquipment
-            ); 
-        }
-        
+    
+        return response()->json([
+            'data' => $GetEquipment,
+            'status code' => http_response_code(),
+        ]);
     }
-
+    
     public function showCosts($branch_id, $fixingCost)
     {
         if ($fixingCost == 'true'){
@@ -214,6 +115,8 @@ class EquipmentController extends Controller
 
     public function AddExistingEquipment(Request $request, $equipment_id)
     {
+        $Model = auth()->guard('manager-api')->user()->role_id == 1 
+            ? BranchesEquipments::class : BranchesEquipmentAssis::class;
         $branch_id = $request->branch_id;
         $employee_id = $request->employee_id;
         $quantity = $request->quantity;
@@ -231,27 +134,7 @@ class EquipmentController extends Controller
         ]);
         return $existingEquipment;
     }
-
-    public function AddExistingEquipmentAssis(Request $request, $equipment_id)
-    {
-        $branch_id = $request->branch_id;
-        $employee_id = $request->employee_id;
-        $quantity = $request->quantity;
-        $cost = $request->cost;
-        $date_in = $request->date_in;
-
-        $existingEquipment = BranchesEquipmentAssis::query()->create([
-            'branch_id'=> $branch_id,
-            'equipment_id'=>$equipment_id,
-            'employee_id'=>$employee_id,
-            'quantity'=>$quantity,
-            'cost'=>$cost,
-            'date_in'=>$date_in,
-            'available'=>$quantity,
-        ]);
-        return $existingEquipment;
-    }
-
+    
     public function AddSysEquipment(Request $request)
     {
         $equipment_name = $request->equipment_name;

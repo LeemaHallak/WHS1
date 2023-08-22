@@ -8,10 +8,10 @@ use App\Http\Requests\UpdateInnerTransictionRequest;
 use App\Models\BranchesProducts;
 use App\Models\OrderProducts;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class InnerTransactionController extends Controller
 {
-
     public function addInnerTransaction(Request $request)
     {
         $manager = auth()->guard('manager-api')->user();
@@ -26,12 +26,14 @@ class InnerTransactionController extends Controller
         else if($role == 3){
             $SourceBranch_id = $productBranch;
         }
-
         $quantity = $request->quantity;
+        if($quantity<=0){
+            return response()->json([
+                'message' => 'please change the quantity'],
+                Response::HTTP_BAD_REQUEST);
+        }
         $ProductQuantity = $Product->value('recent_quantity');
-
         $DestinationBranch_id = $request->DestinationBranch_id;
-
         if(
             $ProductQuantity >= $quantity 
             &&
@@ -69,12 +71,11 @@ class InnerTransactionController extends Controller
 
         return response()->json([
             'inner transaction data'=>$innerTransaction,
-            'new branch product data'=>$newBranchProduct,
-            'status code'=>http_response_code(),
-        ]);
+            'new branch product data'=>$newBranchProduct
+        ], Response::HTTP_CREATED);
     }
 
-    public function showInnerTransaction(Request $request, $sourceBranch_id = null) //Keeper&Assistant
+    public function showInnerTransaction($sourceBranch_id = null) 
     {
         $manager = auth()->guard('manager-api')->user();
         $role = $manager->role_id;
@@ -86,25 +87,16 @@ class InnerTransactionController extends Controller
             $branch_id = $sourceBranch_id;
         }
 
-        $out = InnerTransaction::where('SourceBranch_id', $branch_id)->get();
-        $in = InnerTransaction::where('DestinationBranch_id', $branch_id)->get();
+        $out = InnerTransaction::when($branch_id, function($query) use ($branch_id){
+            $query->where('SourceBranch_id', $branch_id);
+            })->get();
+        $in = InnerTransaction::when($branch_id, function($query) use ($branch_id){
+            $query->where('DestinationBranch_id', $branch_id);
+            })->get();
 
         return response()->json([
             'out transaction' => $out,
-            'in transactions'=> $in,
-            'status code'=> http_response_code()
-        ]);
-    }
-
-    public function showInnerTransactionGeneral($branch_id) //General
-    {
-        $out = InnerTransaction::where('SourceBranch_id', $branch_id)->get();
-        $in = InnerTransaction::where('DestinationBranch_id', $branch_id)->get();
-
-        return response()->json([
-            'out transaction' => $out,
-            'in transactions'=> $in,
-            'status code'=> http_response_code()
-        ]);
+            'in transactions'=> $in
+        ], Response::HTTP_OK);
     }
 }

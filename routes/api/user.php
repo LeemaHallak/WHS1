@@ -49,6 +49,7 @@ Route:: prefix('/users')->group( function (){
                 Route::post('/new', [OrderListController::class, 'StartOrder']);
                 Route::post('/addProducts',[OrderProductsController::class, 'store']);
                 Route::put('/Orderd/{orderlistId}', [OrderListController::class, 'ordering']);
+                Route::get('showProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
             });
     });     
 });  

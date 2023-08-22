@@ -37,7 +37,7 @@ Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(
             Route:: prefix('/Add')->group( function (){
                 Route::post('/exequipApprove/{equipment_id}',  [EquipmentController::class, 'AddExistingEquipmentAssis' ] );
                 Route::post('/NewProduct',[ProductController::class,'storeAssis']);
-                Route::post('/storeProduct',[BranchesProductsController::class,'Assistant_storeProduct']);
+                Route::post('/storeProduct',[BranchesProductsController::class,'storeProduct']);
                 Route::post('/categories',[CategoryController::class, 'approveAddCat']);
             });
 //AddExistingEquipmentAssis

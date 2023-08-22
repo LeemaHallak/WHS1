@@ -18,85 +18,86 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Equipment;
 use App\Models\Product;
+use Illuminate\Http\Response;
 
 class DeletionsController extends Controller
 {
     public function RemoveBranchEquipment($id)
     {
         BranchesEquipments::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveEquipment($id)
     {
         Equipment::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function RemoveFinancial($id)
     {
         Financial::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveOrder($id)
     {
         Order::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveOrderProduct($id)
     {
         OrderProducts::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function RemoveProducingCompany($id)
     {
         ProducingCompany::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function RemoveLocation($main, $section)
     {
         StoringLocations::query()->where('main_section', $main)->Where('section', $section)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveBranchProduct($id)
     {
         BranchesProducts::query()->where('id', $id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function RemoveEmployee($id)
     {
         Employee::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveCustomer($id)
     {
         User::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function RemoveShipment($id)
     {
         Shipment::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveCat($id)
     {
         Category::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
     public function RemoveProduct($id)
     {
         Product::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
     
     public function deleteBranch($id)
@@ -105,15 +106,13 @@ class DeletionsController extends Controller
         if ($branch) {
             $branch->delete();
             return response()->json([
-                'message' => 'Branch deleted successfully',
-                'status code' => http_response_code(),
-            ]);
+                'message' => 'Branch deleted successfully'
+            ], Response::HTTP_OK);
         } 
         else {
             return response()->json([
-                'message' => 'Branch not found',
-                'status code' => http_response_code(),
-            ]);
+                'message' => 'Branch not found'
+            ], Response::HTTP_OK);
         }
     }
 }

@@ -12,25 +12,21 @@ use App\Models\Financial;
 use App\Models\InnerTransaction;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class FinancialController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function ShowAllFinancials()
     {
         $financial = Financial::all();
         if ($financial->isEmpty()) {
             return response()->json([
-                'message' => 'no financial to show',
-                'status code' => 204,
-            ]);
+                'message' => 'no financial to show'
+            ], Response::HTTP_NO_CONTENT);
         }
         return response()->json([
             'data'=>$financial,
-            'status code' => 200,
-        ]);
+        ], Response::HTTP_OK);
     }
 
     public function ShowMonthlyFinancials($month)
@@ -38,14 +34,12 @@ class FinancialController extends Controller
         $Monthlyfinancial = Financial::where('month', $month)->get();
         if (!$Monthlyfinancial) {
             return response()->json([
-                'message' => 'no financial to show',
-                'status code' => 204,
-            ]);
+                'message' => 'no financial to show'
+            ], Response::HTTP_NO_CONTENT);
         }
         return response()->json([
-            'data'=>$Monthlyfinancial,
-            'status code' => 200,
-        ]);
+            'data'=>$Monthlyfinancial
+        ], Response::HTTP_OK);
     }
 
     public function store()
@@ -71,8 +65,7 @@ class FinancialController extends Controller
         ]);
         return response()->json([
             'data'=>$Financial,
-            'status code'=>201,
-        ]);
+        ], Response::HTTP_CREATED);
     }
 
 }

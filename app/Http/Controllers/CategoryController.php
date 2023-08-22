@@ -15,9 +15,6 @@ use function PHPUnit\Framework\isEmpty;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function showAll()
     {
         $categories = Category::all();
@@ -115,19 +112,12 @@ class CategoryController extends Controller
             'status code'=>200,
         ]);
     }
-
-    public function approveAddCat(Request $request)
-    {
-        $Category = CategoryAssis::query()->create([
-            'category_name'=> $request->input('category_name'),
-            'parent_id'=>$request->input('parent_id'),
-        ]);
-        return response()->json([$Category,201]);
-    }
     
     public function AddCat(Request $request)
-    {
-        $Category = Category::query()->create([
+    {        
+        $Model = auth()->guard('manager-api')->user()->role_id == 3
+            ? Category::class : CategoryAssis::class;
+        $Category = $Model::query()->create([
             'category_name'=> $request->input('category_name'),
             'parent_id'=>$request->input('parent_id'),
         ]);
@@ -137,47 +127,22 @@ class CategoryController extends Controller
 
     public function editCategory(Request $request, int $id): JsonResponse
     {
-        $category = Category::find($id);
-    
+        $Model = auth()->guard('manager-api')->user()->role_id == 3
+            ? Category::class : CategoryAssis::class;
+        $category = $Model::find($id);
         if (!$category) {
             return response()->json([
                 'error' => 'category not found'
             ], 404);
         }
-    
         $validatedData = $request->validate([
             'category_name' => 'nullable',
             'parent_id' => 'nullable',
         ]);
-    
         $category->fill($validatedData);
         $category->save();
-    
         return response()->json([
             'message' => 'category updated successfully'
         ]);
     }
-    public function Assistant_editCategory(Request $request, int $id): JsonResponse
-    {
-        $category = CategoryAssis::find($id);
-    
-        if (!$category) {
-            return response()->json([
-                'error' => 'category not found'
-            ], 404);
-        }
-    
-        $validatedData = $request->validate([
-            'category_name' => 'nullable',
-            'parent_id' => 'nullable',
-        ]);
-    
-        $category->fill($validatedData);
-        $category->save();
-    
-        return response()->json([
-            'message' => 'waiting for the keeper aprove...'
-        ]);
-    }
-
 }

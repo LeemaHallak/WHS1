@@ -21,6 +21,7 @@ class OrderListController extends Controller
             'branch_id'=>null,
             'order_quantity'=>0,
             'order_cost' => 0.0,
+            'order_earnings'=>0.0,
             'orderd'=> 0,
         ]);
         return [
