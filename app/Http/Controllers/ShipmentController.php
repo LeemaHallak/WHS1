@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Manager;
 use App\Models\Shipment;
-//use Illuminate\Support\Carbon;
-use App\Models\ShipmentKeeper;
+use App\Models\ShipmentApprove;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Spatie\FlareClient\Http\Response;
+use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ShipmentController extends Controller
 {
     public function store(Request $request)
     {
+        $manager = new Manager();
+        $Model = $manager->role == 3
+            ? Shipment::class : ShipmentApprove::class;
         $request->shipment_date;
         $shipment_date = Carbon::createFromFormat('Y-m-d', $request->shipment_date);
         $current_time = Carbon::now();
@@ -21,7 +24,7 @@ class ShipmentController extends Controller
 
         if($compare == true)
         {
-            $shipment = Shipment::query()->create([
+            $shipment = $Model::query()->create([
                 'I\O' => $request->INorOut,
                 'SourceAddress_id'=> $request->SourceAddress_id,
                 'shipping_company'=> $request->shipping_company,
@@ -36,53 +39,14 @@ class ShipmentController extends Controller
             ]);
     
             return response()->json([
-                'data'=>$shipment,
-                'status code'=>201
-            ]);
+                'data'=>$shipment
+            ], 201);
         }
         else
         {
             return response()->json([
-                'message'=>'please change the shipment date',
-                'status code'=> 400
-            ]);
-        }
-    }
-
-    public function keeperAddShipment(Request $request)
-    {
-        $request->shipment_date;
-        $shipment_date = Carbon::createFromFormat('Y-m-d', $request->shipment_date);
-        $current_time = Carbon::now();
-        $compare = $shipment_date->gt($current_time);
-
-        if($compare == true)
-        {
-            $shipment = ShipmentKeeper::query()->create([
-                'I\O' => $request->INorOut,
-                'SourceAddress_id'=> $request->SourceAddress_id,
-                'shipping_company'=> $request->shipping_company,
-                'DestinationAddress_id'=> $request->DestinationAddress_id,
-                'shipment_date'=>$shipment_date,
-                'shipment_type'=>$request->shipment_type,
-                'max_quantity'=>$request->max_quantity,
-                'shipment_quantity'=> 0,
-                'shipment_cost'=>0.0,
-                'shipProducts_cost'=>0.0,
-                'arrived'=>0,
-            ]);
-    
-            return response()->json([
-                'data'=>$shipment,
-                'status code'=>201
-            ]);
-        }
-        else
-        {
-            return response()->json([
-                'message'=>'please change the shipment date',
-                'status code'=> 400
-            ]);
+                'message'=>'please change the shipment date'
+            ], HttpResponse::HTTP_BAD_REQUEST);
         }
     }
 
@@ -122,7 +86,7 @@ class ShipmentController extends Controller
 
         return $shipmentList->isNotEmpty()
             ? response()->json($shipmentList, 200)
-            : response()->json(['message' => 'No shipments to show']);
+            : response()->json(['message' => 'No shipments to show'], 204);
     }
 
     public function ShipmentDetails($id)
@@ -161,7 +125,7 @@ class ShipmentController extends Controller
         if (!$shipment) {
             return response()->json([
                 'error' => 'Shipment not found'
-            ], 404);
+            ], 204);
         }
 
         $validatedData = $request->validate([
@@ -183,13 +147,13 @@ class ShipmentController extends Controller
 
         return response()->json([
             'message' => 'Shipment updated successfully'
-        ]);
+        ], 200);
     }
 
     public function shipmentArrive($shipmentId)
     {
         Shipment::find($shipmentId)->update(['arrived' => 1]);
-        return response()->json('updated');
+        return response()->json('shipment arrived', 200);
     }
     
 }

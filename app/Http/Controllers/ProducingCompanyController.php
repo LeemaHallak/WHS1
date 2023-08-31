@@ -7,43 +7,36 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Response;
 
 class ProducingCompanyController extends Controller
 {
-    public function store(Request $request, UserController $PC_customer)
+    public function store(Request $request)
     {
-        $ProducingCompany = ProducingCompany::query()->create([
-            'company_code'=>$request->input('company_code'),
-            'company_name'=>$request->input('company_name'),
-            'address_id'=>$request->input('address'),
-            'phone_number'=>$request->input('phone_number'),
-            'email'=>$request->input('email'),
-            'company_register'=>$request->input('company_register'),
-            'industry_register'=>$request->input('industry_register'),
+        $this-> validate($request, [
+            'company_code'=> 'required | integer ', 
+            'phone_number'=> 'required | integer ', 
+            'company_register'=> 'required | integer ', 
+            'industry_register'=> 'required | integer ', 
         ]);
-        return response()->json([$ProducingCompany],201 );
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ProducingCompany $producing_company)
-    {
-        //
+        $ProducingCompany = ProducingCompany::query()->create([
+            'company_code'=>$request->company_code,
+            'company_name'=>$request->company_name,
+            'address_id'=>$request->address,
+            'phone_number'=>$request->phone_number,
+            'email'=>$request->email,
+            'company_register'=>$request->company_register,
+            'industry_register'=>$request->industry_register,
+        ]);
+        return response()->json([$ProducingCompany], Response::HTTP_CREATED );
     }
 
     public function showProducingCompanies()
     {
         $companies = ProducingCompany::all();
-        if ($companies->isEmpty()) {
-            return response()->json([
-                'message' => 'no companies to show'
-            ]);
-        }
-        return response()->json([
-            'companies' => $companies
-        ]);
+        return $companies->isEmpty()
+            ? response()->json(['message' => 'No company found.'], Response::HTTP_NO_CONTENT)
+            : response()->json(['data' => $companies], Response::HTTP_OK);      
     }
 
 }

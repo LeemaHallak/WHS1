@@ -49,30 +49,12 @@ Route::prefix('/GeneralManager')->group(function(){
                     Route::post('/employees',[EmployeeController::class, 'AddEmployee']);
                     Route::post('/financial', [FinancialController::class, 'store']);
                     Route::post('producingCompany', [ProducingCompanyController::class, 'store']);
+                    Route::post('/addlocation',[StoringLocationsController::class, 'store']); 
                 });
                 Route:: prefix('/show')->group( function (){
-                    Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
-                    Route::get('/costs/{type?}', [CostController::class, 'showCosts']); //NO
-                    Route::get('/innerTransactions/{sourceBranch_id?}', [InnerTransactionController::class, 'showInnerTransaction']); 
-                    Route::get('/allEquipmentFixes', [EquipmentFixController::class, 'showAllFixes' ]);
-                    Route::get('/Products/{branch_id?}', [BranchesProductsController::class,'BranchProducts']);
-                    Route::get('showProductDetails/{id}',[ProductController::class,'showProductDetails']);
-                    Route::get('/EmployeesDetails/{emp_id}',[EmployeeController::class, 'showDetails']);
-                    Route::get('/BranchManagers/{role}/{branch?}',[EmployeeController::class, 'ShowBranchesManagers']);
-                    Route::get('/allManagers/{id?}', [EmployeeController::class, 'ShowAllBranchesManagers']);
-                    Route::get('/employees',[EmployeeController::class, 'ShowEmployees']);
-                    Route::get('/AllProducts',[ProductController::class, 'AllProducts']);
-                    Route::get('/equipments',[EquipmentController::class, 'ShowAllEquipments']);
-                    Route::get('/equipmentsCosting/{fixingCost}',[EquipmentController::class, 'showAllCosts']);
                     Route::get('/financial/{month}',[FinancialController::class, 'ShowMonthlyFinancials']);
                     Route::get('/allFinancials',[FinancialController::class, 'ShowAllFinancials']);
                     Route::get('/customers/{getBy?}',[UserController::class, 'showCustomers']);
-                    Route::get('showOrderLists/{id?}',[OrderListController::class,'showOrderLists']);
-                    Route::get('showOrderProducts/{OrderList_id}',[OrderProductsController::class,'showOrderProducts']); 
-                    Route::controller(CategoryController::class)->group(function(){
-                        Route::get('/Pcategories', 'ShowParentsCategories');
-                        Route::get('/CHcategories/{category_id}', 'GeneralChildrenCategories');
-                        Route::get('/RootsCats', 'ShowRootsCategories'); 
                     });
                 });
                 Route::prefix('/delete')->group(function(){
@@ -88,7 +70,11 @@ Route::prefix('/GeneralManager')->group(function(){
                         Route::delete('/financial/{id}',[FinancialController::class, 'RemoveFinancial']);
                         Route::delete('/order/{id}',[OrderController::class, 'RemoveOrder']);
                     });
-                });//kkkk
+                });
+                
+                Route::prefix('/edit')->group(function(){
+                    Route::post('/editShipment/{id}',[ShipmentController::class, 'editShipment']);
+                });
 
                 Route::prefix('/order')->group(function(){
                     Route::controller(OrderController::class)->group(function(){
@@ -124,5 +110,5 @@ Route::prefix('/GeneralManager')->group(function(){
             }
         );
     });
-});
+
 

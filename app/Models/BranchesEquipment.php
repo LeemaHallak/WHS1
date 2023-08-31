@@ -6,7 +6,7 @@ use Cjmellor\Approval\Concerns\MustBeApproved;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BranchesEquipments extends Model
+class BranchesEquipment extends Model
 {
     use HasFactory;
     protected $guarded = [

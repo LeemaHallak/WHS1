@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\EquipmentFix;
 use Carbon\Carbon;
-//use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class EquipmentFixController extends Controller
 {
-    public function showEquipmentsFixes($equipment_id)
+    public function showEquipmentsFixes($equipmentIid)
     {
-            $equipmentFixes = EquipmentFix::where('equipment_id', $equipment_id);
+            $equipmentFixes = EquipmentFix::when($equipmentIid, fn($query) =>
+                    $query->where('equipment_id', $equipmentIid));
             $CountEquipmentFixes = $equipmentFixes->count();
             $GetEquipmentFixes = $equipmentFixes->get();
 
@@ -22,16 +22,5 @@ class EquipmentFixController extends Controller
             ], Response::HTTP_OK);
     }
 
-    public function showAllFixes()
-    {
-            $equipmentFixes = EquipmentFix::query();
-            $CountEquipmentFixes = $equipmentFixes->count();
-            $GetEquipmentFixes = $equipmentFixes->get()->groupBy('equipment_id');
-
-            return response()->json([
-                'equipment fixes: ' => $GetEquipmentFixes,
-                'equipment fix times: ' => $CountEquipmentFixes
-            ], Response::HTTP_OK);
-    }
 }
 

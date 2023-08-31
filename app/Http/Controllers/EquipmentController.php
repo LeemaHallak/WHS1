@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
-use App\Models\BranchesEquipmentAssis;
+use App\Models\BranchesEquipment;
+use App\Models\BranchesEquipmentApprove;
 use App\Models\BranchesEquipments;
 use App\Models\Equipment;
 use App\Models\EquipmentFix;
+use App\Models\Manager;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,11 +16,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class EquipmentController extends Controller
 {
-    public function showAllEquipments(Request $request, $branchId = null) 
+    public function showEquipment(Request $request, $branchId = null) 
     {
         $getBy = $request->input('get_by');
         $queryParams = $request->only(['employee_id', 'date_in', 'branch_id', 'name']);
-        $GetEquipment = BranchesEquipments::query()->with('equipments')->when($branchId, function ($query) use ($branchId) {
+        $GetEquipment = BranchesEquipment::query()->with('equipments')->when($branchId, function ($query) use ($branchId) {
             return $query->where('branch_id', $branchId);
         });
     
@@ -72,60 +74,38 @@ class EquipmentController extends Controller
         ]);
     }
     
-    public function showCosts($branch_id, $fixingCost)
-    {
+    public function showCosts($branchId, $fixingCost)
+    { 
+        $GetCost = BranchesEquipment::query()->when($branchId, fn($query) =>
+                $query->where('branch_id', $branchId))
+                ->sum('cost');
         if ($fixingCost == 'true'){
-            $GetCost = BranchesEquipments::query()->where('branch_id', $branch_id)->sum('cost');
-            $branch = Branch::find($branch_id);
+            $branch = Branch::find($branchId);
             $GetfixingCost = $branch->equipments_fixing()->sum('fixing_cost');
             return response()->json([
                 'total cost is:' => $GetCost,
-                'total fixing cost is:' => $GetfixingCost,  
-                'status code:' =>http_response_code(),
-            ]);
+                'total fixing cost is:' => $GetfixingCost
+            ], 200);
         }
-        elseif ($fixingCost == 'false') {
-            $GetCost = BranchesEquipments::query()->where('branch_id', $branch_id)->sum('cost');
-            return response()->json([
-                'total cost is:' => $GetCost,
-                'status code:' =>http_response_code(),
-            ]);
-        }
+        return response()->json([
+            'total cost is:' => $GetCost
+        ], 200);
     }
 
-    public function showAllCosts( $fixingCost)
+    public function AddExistingEquipment(Request $request, $equipmentIid)
     {
-        if ($fixingCost == 'true'){
-            $GetCost = BranchesEquipments::query()->sum('cost');
-            $GetfixingCost = EquipmentFix::sum('fixing_cost');
-            return response()->json([
-                'total cost is:' => $GetCost,
-                'total fixing cost is:' => $GetfixingCost,
-                'status code:' =>http_response_code(),
-            ]);
-        }
-        elseif ($fixingCost == 'false') {
-            $GetCost = BranchesEquipments::query()->sum('cost');
-            return response()->json([
-                'total cost is:' => $GetCost,
-                'status code:' =>http_response_code(),
-            ]);
-        }
-    }
-
-    public function AddExistingEquipment(Request $request, $equipment_id)
-    {
-        $Model = auth()->guard('manager-api')->user()->role_id == 1 
-            ? BranchesEquipments::class : BranchesEquipmentAssis::class;
+        $manager = new Manager();
+        $Model = $manager->role() == 1 
+            ? BranchesEquipments::class : BranchesEquipmentApprove::class;
         $branch_id = $request->branch_id;
         $employee_id = $request->employee_id;
         $quantity = $request->quantity;
         $cost = $request->cost;
         $date_in = $request->date_in;
 
-        $existingEquipment = BranchesEquipments::query()->create([
+        $existingEquipment = $Model::query()->create([
             'branch_id'=> $branch_id,
-            'equipment_id'=>$equipment_id,
+            'equipment_id'=>$equipmentIid,
             'employee_id'=>$employee_id,
             'quantity'=>$quantity,
             'cost'=>$cost,
@@ -148,46 +128,32 @@ class EquipmentController extends Controller
 
     public function AddNewEquipments(Request $request)
     {
-        $new_SysEquipment = (new EquipmentController)->AddSysEquipment($request);
+        $new_SysEquipment = $this->AddSysEquipment($request);
         $equipment_id = $new_SysEquipment->id;
-        $new_equipment = (new EquipmentController())->AddExistingEquipment($request, $equipment_id);
+        $new_equipment = $this->AddExistingEquipment($request, $equipment_id);
         return response()->json([
             'system eqipment data' => $new_SysEquipment,
-            'barnch equipment data' => $new_equipment,
-            'status code' => http_response_code(),
-        ]);
+            'barnch equipment data' => $new_equipment
+        ], 201);
     }
 
-    public function editBranchEquipment($BranchEquipment_id)
+    public function editEquipment(Request $request, int $equipmentIid): JsonResponse
     {
-        $equipment = BranchesEquipments::find($BranchEquipment_id);
-        if (!$equipment) {
-            return response()->json([
-                'error' => 'equipment not found'
-            ], 404);
-        }
-    }
-
-    public function editEquipment(Request $request, int $id): JsonResponse
-    {
-        $equipment = Equipment::find($id);
+        $equipment = Equipment::find($equipmentIid);
     
         if (!$equipment) {
             return response()->json([
                 'error' => 'equipment not found'
-            ], 404);
+            ], 400);
         }
-    
         $validatedData = $request->validate([
             'equipment_name' => 'nullable',
             'description' => 'nullable',
         ]);
-    
         $equipment->fill($validatedData);
         $equipment->save();
-    
         return response()->json([
             'message' => 'equipment updated successfully'
-        ]);
+        ], 200);
     }
 }

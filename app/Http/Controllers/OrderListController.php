@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Manager;
 use App\Models\Order;
 use App\Models\OrderList;
 use App\Models\OrderProducts;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class OrderListController extends Controller
 {
     public function StartOrder(Request $request)
     {
-        $role = auth()->guard('manager-api')->user()->role_id;
-        $customer = $request->customer;
-        $customer_id = ($role == 1) ? $customer : Auth::id();
+        $manager = new Manager();
+        $role = $manager->role();
+        $customer_id = ($role == 1) ? $request->customer : Auth::id();
         $OrderList = OrderList::query()->create([
             'customer_id' => $customer_id,
             'branch_id'=>null,
@@ -24,37 +26,27 @@ class OrderListController extends Controller
             'order_earnings'=>0.0,
             'orderd'=> 0,
         ]);
-        return [
+        return response()->json([
             'order list' => $OrderList,
-        ];
+        ], Response::HTTP_CREATED);
     }
 
     public function ordering($orderlistId)
     {
         $updtaing = OrderList::query()->find($orderlistId)->update(['ordered'=> 1]);
-        return response()->json(['data'=>$updtaing,'status code'=>200]);
+        return response()->json(['data'=>$updtaing], Response::HTTP_OK);
     }
 
-    public function showOrderLists($id = null)
+    public function showOrderLists($shipmentId = null)
     {
-        $orders = Order::with('OrderList.customers');
-        if(!$id){
-            $orders = $orders->get();
-            return response()->json(
-                $orders
-                ,200);
-        }
-        $orders = $orders->where('shipment_id',$id)->get();
-        if ($orders->isNotEmpty()) {
-            return response()->json(
-                $orders
-            ,200);
-        } else {
-            return response()->json([
+        $ordersQuery = Order::with('OrderList.customers');
+        $orders = $shipmentId ? $ordersQuery->where('shipment_id', $shipmentId)->get() : $ordersQuery->get();
+        
+        return $orders->isEmpty()
+            ? response()->json(['message' => 'No orders found.'], Response::HTTP_NO_CONTENT)
+            : response()->json([
                 'message' => 'no orders to show'
-            ]);
-        }
-            
+            ], Response::HTTP_OK);        
     }
 
 }

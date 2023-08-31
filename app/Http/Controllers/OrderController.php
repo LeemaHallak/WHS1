@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Manager;
 use App\Models\order;
 use App\Models\OrderList;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class OrderController extends Controller
 {
@@ -46,77 +48,66 @@ class OrderController extends Controller
             return [
                 $order,
                 $New_shipmentCost,
-                $New_shipmentQuantity
+                $New_shipmentQuantity,
+                201
             ];
         } 
         else
         {
             return response()->json([
-                'message'=>'please change the shipment',
-                'status code'=> 400
-            ]);
+                'message'=>'please change the shipment'
+            ], Response::HTTP_BAD_REQUEST);
         }
         
     }
 
     public function ShowOrders($branchId =null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         $branch = Branch::find($branchId);
         $order = $branch->orders()->with('OrderList.customers')->get();
         return response()->json([
-            'orders'=>$order,
-            'stauts code'=>http_response_code(),
-        ]);
+            'orders'=>$order
+        ], Response::HTTP_OK);
     }
 
     public function ShowShipmentOrders($shipmentId, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
-        if(!$branchId){
-            $orders = Order::with('OrderList')->where('shipment_id', $shipmentId)->get();
-            return response()->json([
-                'orders'=>$orders,
-                'stauts code'=>http_response_code(),
-            ]);
-        }
-        $branch = Branch::find($branchId);
-        $order = $branch->orders()->with('OrderList')->where('shipment_id', $shipmentId)->get();
+        $orders = $branchId
+            ? Branch::find($branchId)->orders()->with('OrderList')->where('shipment_id', $shipmentId)->get()
+            : Order::with('OrderList')->where('shipment_id', $shipmentId)->get();
+
         return response()->json([
-            'orders'=>$order,
-            'stauts code'=>http_response_code(),
-        ]);
+            'orders' => $orders
+        ], Response::HTTP_OK);
     }
 
-    public function OrderReady($id, $ready){
-        $order = Order::find($id);
+    public function OrderReady($orderId, $ready){
+        $order = Order::find($orderId);
         $isReady = $order->ready;
         if ($isReady != $ready){
             $updated = $order->update([
                 'ready' => $ready
-            ]);
+            ], Response::HTTP_OK);
         }
     }
 
-    public function OrderArrived($id, $arrived){
-        $order = Order::find($id);
+    public function OrderArrived($orderId, $arrived){
+        $order = Order::find($orderId);
         $isArrived = $order->arrived;
         if ($isArrived != $arrived){
             $updated = $order->update([
                 'arrived' => $arrived
-            ]);
+            ], Response::HTTP_OK);
         }
     }
-
-
 }

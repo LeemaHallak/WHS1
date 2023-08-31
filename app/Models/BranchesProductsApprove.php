@@ -6,7 +6,7 @@ use Cjmellor\Approval\Concerns\MustBeApproved;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BranchesProductsAssis extends BranchesProducts
+class BranchesProductsApprove extends BranchesProducts
 {
     use HasFactory, MustBeApproved;
 

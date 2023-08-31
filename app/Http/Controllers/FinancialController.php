@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BranchesEquipment;
 use App\Models\BranchesEquipments;
 use App\Models\Cost;
 use Carbon\Carbon;
@@ -49,7 +50,7 @@ class FinancialController extends Controller
         $outgoings = $currShipment->where('I\O', 'In')->sum('shipment_cost');
         $incomings = $currShipment->where('I\O', 'Out')->sum('shipment_cost');
         $costs = Cost::whereMonth('date', $currMonth)->sum('cost');
-        $equipmentCosts = BranchesEquipments::whereMonth('date_in', $currMonth)->sum('cost');
+        $equipmentCosts = BranchesEquipment::whereMonth('date_in', $currMonth)->sum('cost');
         $EqFixingCosts = EquipmentFix::with('branches_equipments')->whereMonth('fix_date', $currMonth)->sum('fixing_cost');
         $transactionCosts = InnerTransaction::whereMonth('transaction_date', $currMonth)->sum('transaction_cost');
         $totalCosts = $costs+$equipmentCosts+$EqFixingCosts+$transactionCosts;

@@ -8,9 +8,6 @@ use Illuminate\Http\Response;
 
 class BranchController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function ShowBranches()
     {
         $branches = Branch::with('address')->get();
@@ -42,11 +39,10 @@ class BranchController extends Controller
     public function store(Request $request)
     {
         $this-> validate($request, [
-            'phone_number'=>'required',
+            'phone_number'=>'required | integer',
             'space'=>'required',
             'company_register' => 'required ',
         ]);
-            
             $branch = Branch::query()->create([
                 'address_id'=>$request->address_id,
                 'phone_number'=>$request->phone_number,

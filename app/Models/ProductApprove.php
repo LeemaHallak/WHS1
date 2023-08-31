@@ -6,9 +6,9 @@ use Cjmellor\Approval\Concerns\MustBeApproved;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShipmentKeeper extends Shipment
+class ProductApprove extends Product
 {
     use HasFactory, MustBeApproved;
     
-    protected $table = 'shipments';
+    protected $table = 'products';
 }

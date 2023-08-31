@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\Manager as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Znck\Eloquent\Traits\BelongsToThrough;
+
+
 
 class Manager extends Authenticatable
 {
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable, BelongsToThrough;
 
     protected $guarded = [
         'id'
@@ -34,6 +38,23 @@ class Manager extends Authenticatable
     public function roles()
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function branches()
+    {
+        return $this->belongsToThrough(Branch::class, Employee::class);
+    }
+
+    public function scopeBranch()
+    {
+        $managerId = Auth::id();
+        return $this->find($managerId)->branches()->pluck('branches.id');
+    }
+
+    public function scopeRole()
+    {
+        $managerId = Auth::id();
+        return $this->find($managerId)->role_id;
     }
 
 }

@@ -46,6 +46,10 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         array (
             'phpseclib3\\' => 11,
         ),
+        'Z' => 
+        array (
+            'Znck\\Eloquent\\' => 14,
+        ),
         'W' => 
         array (
             'Whoops\\' => 7,
@@ -88,6 +92,8 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
             'StellaMaris\\Clock\\' => 18,
+            'Staudenmeir\\EloquentHasManyDeep\\' => 32,
+            'Staudenmeir\\EloquentHasManyDeepContracts\\' => 41,
             'Spatie\\LaravelPackageTools\\' => 27,
             'Spatie\\LaravelIgnition\\' => 23,
             'Spatie\\Ignition\\' => 16,
@@ -204,6 +210,10 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         'phpseclib3\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
+        'Znck\\Eloquent\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/staudenmeir/belongs-to-through/src',
         ),
         'Whoops\\' => 
         array (
@@ -340,6 +350,14 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         'StellaMaris\\Clock\\' => 
         array (
             0 => __DIR__ . '/..' . '/stella-maris/clock/src',
+        ),
+        'Staudenmeir\\EloquentHasManyDeep\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src',
+        ),
+        'Staudenmeir\\EloquentHasManyDeepContracts\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep-contracts/src',
         ),
         'Spatie\\LaravelPackageTools\\' => 
         array (
@@ -614,6 +632,7 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
 
     public static $classMap = array (
         'App\\Console\\Commands\\DeleteList' => __DIR__ . '/../..' . '/app/Console/Commands/DeleteList.php',
+        'App\\Console\\Commands\\MakeFinancialReport' => __DIR__ . '/../..' . '/app/Console/Commands/MakeFinancialReport.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AddressController' => __DIR__ . '/../..' . '/app/Http/Controllers/AddressController.php',
@@ -708,7 +727,7 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         'App\\Models\\OrderProducts' => __DIR__ . '/../..' . '/app/Models/OrderProducts.php',
         'App\\Models\\ProducingCompany' => __DIR__ . '/../..' . '/app/Models/ProducingCompany.php',
         'App\\Models\\Product' => __DIR__ . '/../..' . '/app/Models/Product.php',
-        'App\\Models\\ProductAssis' => __DIR__ . '/../..' . '/app/Models/ProductAssis.php',
+        'App\\Models\\ProductApprove' => __DIR__ . '/../..' . '/app/Models/ProductApprove.php',
         'App\\Models\\Region' => __DIR__ . '/../..' . '/app/Models/Region.php',
         'App\\Models\\Role' => __DIR__ . '/../..' . '/app/Models/Role.php',
         'App\\Models\\Shipment' => __DIR__ . '/../..' . '/app/Models/Shipment.php',
@@ -5818,6 +5837,26 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         'Spatie\\LaravelPackageTools\\Exceptions\\InvalidPackage' => __DIR__ . '/..' . '/spatie/laravel-package-tools/src/Exceptions/InvalidPackage.php',
         'Spatie\\LaravelPackageTools\\Package' => __DIR__ . '/..' . '/spatie/laravel-package-tools/src/Package.php',
         'Spatie\\LaravelPackageTools\\PackageServiceProvider' => __DIR__ . '/..' . '/spatie/laravel-package-tools/src/PackageServiceProvider.php',
+        'Staudenmeir\\EloquentHasManyDeepContracts\\Interfaces\\ConcatenableRelation' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep-contracts/src/Interfaces/ConcatenableRelation.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\CompositeKey' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/CompositeKey.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\ThirdParty\\LaravelHasManyMerged\\HasManyMerged' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/ThirdParty/LaravelHasManyMerged/HasManyMerged.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\ExecutesQueries' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/ExecutesQueries.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\HasEagerLimit' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/HasEagerLimit.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\HasEagerLoading' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/HasEagerLoading.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\HasExistenceQueries' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/HasExistenceQueries.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\IsConcatenable' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/IsConcatenable.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\IsCustomizable' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/IsCustomizable.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\JoinsThroughParents' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/JoinsThroughParents.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\RetrievesIntermediateTables' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/RetrievesIntermediateTables.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Relations\\Traits\\SupportsCompositeKeys' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Relations/Traits/SupportsCompositeKeys.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Traits\\ConcatenatesNativeRelationships' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Traits/ConcatenatesNativeRelationships.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Traits\\ConcatenatesRelationships' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Traits/ConcatenatesRelationships.php',
+        'Staudenmeir\\EloquentHasManyDeep\\Eloquent\\Traits\\ReversesRelationships' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/Eloquent/Traits/ReversesRelationships.php',
+        'Staudenmeir\\EloquentHasManyDeep\\HasManyDeep' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/HasManyDeep.php',
+        'Staudenmeir\\EloquentHasManyDeep\\HasOneDeep' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/HasOneDeep.php',
+        'Staudenmeir\\EloquentHasManyDeep\\HasRelationships' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/HasRelationships.php',
+        'Staudenmeir\\EloquentHasManyDeep\\HasTableAlias' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/HasTableAlias.php',
+        'Staudenmeir\\EloquentHasManyDeep\\IdeHelper\\DeepRelationsHook' => __DIR__ . '/..' . '/staudenmeir/eloquent-has-many-deep/src/IdeHelper/DeepRelationsHook.php',
         'StellaMaris\\Clock\\ClockInterface' => __DIR__ . '/..' . '/stella-maris/clock/src/ClockInterface.php',
         'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
         'Symfony\\Bridge\\PsrHttpMessage\\ArgumentValueResolver\\PsrServerRequestResolver' => __DIR__ . '/..' . '/symfony/psr-http-message-bridge/ArgumentValueResolver/PsrServerRequestResolver.php',
@@ -6815,6 +6854,9 @@ class ComposerStaticInit8c04145a68dca4c4bd22ab1abe8aefa8
         'Whoops\\Util\\Misc' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/Misc.php',
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
+        'Znck\\Eloquent\\Relations\\BelongsToThrough' => __DIR__ . '/..' . '/staudenmeir/belongs-to-through/src/Relations/BelongsToThrough.php',
+        'Znck\\Eloquent\\Traits\\BelongsToThrough' => __DIR__ . '/..' . '/staudenmeir/belongs-to-through/src/Traits/BelongsToThrough.php',
+        'Znck\\Eloquent\\Traits\\HasTableAlias' => __DIR__ . '/..' . '/staudenmeir/belongs-to-through/src/Traits/HasTableAlias.php',
         'phpseclib3\\Common\\Functions\\Strings' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Common/Functions/Strings.php',
         'phpseclib3\\Crypt\\AES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/AES.php',
         'phpseclib3\\Crypt\\Blowfish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Blowfish.php',

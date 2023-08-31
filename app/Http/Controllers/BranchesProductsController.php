@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\BranchesProducts;
-use App\Models\BranchesProductsAssis;
+use App\Models\BranchesProductsApprove;
+use App\Models\Manager;
 use App\Models\OrderList;
 use App\Models\OrderProducts;
 use App\Models\Product;
-use App\Models\ProductAssis;
+use App\Models\ProductApprove;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,26 +17,26 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class BranchesProductsController extends Controller
 {
     
-    public function findBranchesCatProducts($branch_id, $category_id)
+    public function findBranchesCatProducts($branchId, $categoryId)
     {
-        $branch = BranchesProducts::where('branch_id', $branch_id);
+        $branch = BranchesProducts::where('branch_id', $branchId);
         $show = $branch->withWhereHas('Products', fn($query) =>
-        $query->where('Category_id', $category_id)
+        $query->where('Category_id', $categoryId)
         )->get();
         return $show;
     }
 
-    public function BranchesCatProducts($branch_id, $category_id)
+    public function BranchesCatProducts($branchId, $categoryId)
     {
-        $products = (new BranchesProductsController)->findBranchesCatProducts($branch_id, $category_id);
+        $products = $this->findBranchesCatProducts($branchId, $categoryId);
         return $products;
     }
 
-    public function BranchProducts($branch_id = null)                      
+    public function BranchProducts($branchId = null)                      
     {
-        $products = Product::whereHas('BranchProducts', function ($query) use ($branch_id) {
-            $query->when($branch_id, function($q) use ($branch_id){
-                $q->where('branch_id', $branch_id);
+        $products = Product::whereHas('BranchProducts', function ($query) use ($branchId) {
+            $query->when($branchId, function($q) use ($branchId){
+                $q->where('branch_id', $branchId);
             });
         })
         ->with('BranchProducts')
@@ -43,9 +44,9 @@ class BranchesProductsController extends Controller
         return response()->json($products, Response::HTTP_OK);
     }
 
-    public function BranchProductDetails($product_id)                    
+    public function BranchProductDetails($productId)                    
     {
-        $product = BranchesProducts::with(['Products', 'Products.producing_companies'])->find($product_id);
+        $product = BranchesProducts::with(['Products', 'Products.producing_companies'])->find($productId);
         $systemProduct = $product->product_id;
         $branch = $product->branch_id;
         $details = $product;
@@ -64,9 +65,13 @@ class BranchesProductsController extends Controller
 
     public function storeProduct(Request $request)
     {
+        $this-> validate($request, [
+            'purchase_num'=>'required|integer',
+        ]);
+        $manager = new Manager();
         $in_quantity = $request->in_quantity;
-        $Model = auth()->guard('manager-api')->user()->role_id == 1 
-            ? BranchesProducts::class : BranchesProductsAssis::class;
+        $Model = $manager->role() == 1 
+            ? BranchesProducts::class : BranchesProductsApprove::class;
         $BranchesProducts = $Model::query()->create([
             'product_id' => $request->product_id,
             'branch_id'=> $request->branch_id,
@@ -83,15 +88,16 @@ class BranchesProductsController extends Controller
         return response()->json(['data'=>$BranchesProducts ], Response::HTTP_CREATED);
     }
 
-    public function editProduct(Request $request, int $id): JsonResponse
+    public function editProduct(Request $request, int $productId): JsonResponse
     {
-        $Model = auth()->guard('manager-api')->user()->role_id == 1 
-                ? BranchesProducts::class : BranchesProductsAssis::class;
-        $product = $Model::find($id);
+        $manager = new Manager();
+        $Model = $manager->role() == 1 
+                ? BranchesProducts::class : BranchesProductsApprove::class;
+        $product = $Model::find($productId);
         if (!$product) {
             return response()->json([
                 'error' => 'product not found'
-            ], 404);
+            ], 400);
         }
         $validatedData = $request->validate([
             'product_id' => 'nullable',
@@ -102,14 +108,14 @@ class BranchesProductsController extends Controller
             'prod_date' => 'nullable|date',
             'exp_date' => 'nullable|date',
             'date_in'=>'nullable|date', 
-            'purchase_num'=>'nullable|string',
+            'purchase_num'=>'nullable|integer',
             'buying_cost'=>'nullable', 
         ]);
         $product->fill($validatedData);
         $product->save();
         return response()->json([
             'message' => 'product updated successfully'
-        ]);
+        ], 200);
     }
 
     public function ProductTransition($productId)
@@ -127,6 +133,6 @@ class BranchesProductsController extends Controller
             ->get();
         $productTransation = $inProduct->concat($outProduct);
         
-        return response()->json($productTransation);
+        return response()->json($productTransation, 200);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\InnerTransaction;
 use App\Http\Requests\StoreInnerTransictionRequest;
 use App\Http\Requests\UpdateInnerTransictionRequest;
 use App\Models\BranchesProducts;
+use App\Models\Manager;
 use App\Models\OrderProducts;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,14 +15,13 @@ class InnerTransactionController extends Controller
 {
     public function addInnerTransaction(Request $request)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         $BranchProduct_id = $request->BranchProduct_id;
         $Product = BranchesProducts::find( $BranchProduct_id);
         $productBranch = $Product->branch_id;
         if($role == 1){
-            $employee = $manager->employee;
-            $SourceBranch_id = $employee->branch_id;
+            $SourceBranch_id = $manager->branch();
         }
         else if($role == 3){
             $SourceBranch_id = $productBranch;
@@ -75,23 +75,22 @@ class InnerTransactionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    public function showInnerTransaction($sourceBranch_id = null) 
+    public function showInnerTransaction($sourceBranchId = null) 
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branch_id = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         else if($role == 3){
-            $branch_id = $sourceBranch_id;
+            $branchId = $sourceBranchId;
         }
 
-        $out = InnerTransaction::when($branch_id, function($query) use ($branch_id){
-            $query->where('SourceBranch_id', $branch_id);
+        $out = InnerTransaction::when($branchId, function($query) use ($branchId){
+            $query->where('SourceBranch_id', $branchId);
             })->get();
-        $in = InnerTransaction::when($branch_id, function($query) use ($branch_id){
-            $query->where('DestinationBranch_id', $branch_id);
+        $in = InnerTransaction::when($branchId, function($query) use ($branchId){
+            $query->where('DestinationBranch_id', $branchId);
             })->get();
 
         return response()->json([

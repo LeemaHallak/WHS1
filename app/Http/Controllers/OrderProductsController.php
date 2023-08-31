@@ -6,6 +6,7 @@ use App\Models\BranchesProducts;
 use App\Models\OrderList;
 use App\Models\OrderProducts;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class OrderProductsController extends Controller
@@ -13,14 +14,12 @@ class OrderProductsController extends Controller
 
     public function store(Request $request)
     {
-        
         $orderList = $request->orderList;
-        
         $BranchProduct_id = $request->BranchProduct_id;
         $quantity = $request->quantity;
 
-        $Product = BranchesProducts::where('id', $BranchProduct_id);
-        $OrderList = OrderList::where('id',$orderList);
+        $Product = BranchesProducts::find($BranchProduct_id);
+        $OrderList = OrderList::find($orderList);
 
         $branch = $Product->value('branch_id');
         $orderBranch = $OrderList->value('branch_id');
@@ -38,7 +37,8 @@ class OrderProductsController extends Controller
         }
         else{
             return response()->json(
-                'please choose a product from the same branch, or start a new product'
+                'please choose a product from the same branch, or start a new product',
+                Response::HTTP_BAD_REQUEST
             );
         }
     }
@@ -96,37 +96,35 @@ class OrderProductsController extends Controller
                 'order cost'=>$New_OrderCost, 
                 'product quantity'=>$New_ProductQuantity, 
                 'order quantity'=>$New_OrderQuantity,
-            ]); 
+            ], Response::HTTP_CREATED); 
             
         }
         else
         {
             return response()->json([
-                'message'=>'you can not add products to this order',
-                'status cade' => 400,
-            ]);
+                'message'=>'you can not add products to this order'
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 
     public function RemoveOrderProduct($id)
     {
         OrderProducts::query()->find($id)->delete();
-        return http_response_code();
+        return Response::HTTP_OK;
     }
 
-    public function showOrderProducts($Order_list_id)
+    public function showOrderProducts($OrderListId)
     {
         $products = OrderProducts::join('branches_products', 'order_products.BranchesProducts_id', '=', 'branches_products.id')
             ->join('products', 'branches_products.product_id', '=', 'products.id')
-            ->where('OrderList_id', $Order_list_id)
+            ->where('OrderList_id', $OrderListId)
             ->select('order_products.quantity', 'order_products.total_price', 'branches_products.price', 'products.product_name')
             ->get();
 
-        if ($products->isNotEmpty()) {
-            return response()->json($products, 200);
-        } 
-        else {
-            return response()->json(['message' => 'no products to show']);
-        }
+            return $products->isNotEmpty()
+            ? response()->json($products, Response::HTTP_OK)
+            : response()->json([
+                'message' => 'no products to show'
+            ], Response::HTTP_NO_CONTENT);      
     }
 }

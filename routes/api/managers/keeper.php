@@ -54,15 +54,6 @@ Route:: prefix('/keeper')->group( function (){
                     Route::post('/addlocation',[StoringLocationsController::class, 'store']); 
                 });
                 Route:: prefix('/show')->group( function (){
-                    Route::get('/BranchEmployees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
-                    Route::get('/EmployeesDetails/{emp_id}',[EmployeeController::class, 'showDetails']);
-                    Route::get('showProductDetails/{id}',[ProductController::class,'showProductDetails']);
-                    Route::get('showShipments',[ShipmentController::class,'showShipments']);
-                    Route::get('ShipmentDetails/{id}',[ShipmentController::class,'ShipmentDetails']);
-                    Route::get('showOrderLists/{id}',[OrderListController::class,'showOrderLists']);
-                    Route::get('showOrderProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
-                    Route::get('/costs/{type}', [CostController::class, 'ShowCosts']); //N
-                    Route::get('/innerTransactions', [InnerTransactionController::class, 'ShowInnerTransaction']); //N
                 });
                 Route::prefix('/edit')->group(function(){
                     Route::post('/editProduct/{id}',[BranchesProductsController::class, 'editProduct']);

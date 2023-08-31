@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Manager;
 use App\Models\Product;
-use App\Models\ProductAssis;
+use App\Models\ProductApprove;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 
 class ProductController extends Controller
 {
 
-    public function CatProducts($category_id)
+    public function CatProducts($categoryId)
     {
-        $products = Product::where('Category_id',$category_id)->get();
+        $products = Product::where('Category_id',$categoryId)->get();
         if ($products->isEmpty()) {
             return response()->json([
-                'message' => 'no products to show',
-                'status code' => 204,
-            ]);
+                'message' => 'no products to show'
+            ], Response::HTTP_NO_CONTENT);
         }
         return $products;   
     }
@@ -26,67 +27,42 @@ class ProductController extends Controller
     public function AllProducts()
     {
         $products = Product::get();
-        if ($products->isEmpty()) {
-            return response()->json([
-                'message' => 'no products to show',
-                'status code' => 204,
-            ]);
-        }
-        return response()->json([
-            'data' => $products,
-            'status code' => 200
-
-        ]);   
+        return $products->isEmpty()
+            ? response()->json(['message' => 'No products found.'], Response::HTTP_NO_CONTENT)
+            : response()->json(['data' => $products], Response::HTTP_OK);      
     }
 
-    public function showProductDetails($id)
+    public function showProductDetails($productId)
     {
-        $productDetails = Product::where('id',$id)->first();
+        $productDetails = Product::where('id',$productId)->first();
         return response()->json([
-            'data' => $productDetails,
-            'status' => http_response_code()
-        ]);
+            'data' => $productDetails
+        ], Response::HTTP_OK);
     }
 
     public function store(Request $request)
     {
-        $image_url = '/storage/' . $request->file('image')->store('products', 'public');
-
-        $product = Product::query()->create([
-            'product_name'=> $request->input('product_name'),
-            'description'=> $request->input('description'),
-            'ProducingCompany_id'=> $request->input('Producing_Company_id'),
-            'Supplier_id'=>$request->input('supplier_id'),
-            'UPC_code'=>$request->input('UPC_code'),
-            'product_code'=>$request->input('product_code'),
-            'Category_id'=>$request->input('Category_id'),
-            'weight'=>$request->input('weight'),
-            'WUnit'=>$request->input('WUnit'),
-            'size'=>$request->input('size'),
-            'SUnit'=>$request->input('SUnit'),
-            'box_quantity'=>$request->input('box_quantity'),
-            'image'=>$image_url,
+        $this-> validate($request, [
+            'UPC_code'=> ' required | integer',
+            'product_code'=> ' required | integer',
         ]);
-        return response()->json([$product,201]);
-    }
-
-    public function storeAssis(Request $request)
-    {
+        $manager = new Manager();
+        $Model = $manager->role == 3
+            ? Product::class : ProductApprove::class;
         $image_url = '/storage/' . $request->file('image')->store('products', 'public');
-        $product = ProductAssis::query()->create([
-            'product_name'=> $request->input('product_name'),
-            'InnerCategory_id'=> $request->input('Inner_Category_id'),
-            'description'=> $request->input('description'),
-            'ProducingCompany_id'=> $request->input('Producing_Company_id'),
-            'Supplier_id'=>$request->input('supplier_id'),
-            'UPC_code'=>$request->input('UPC_code'),
-            'product_code'=>$request->input('product_code'),
-            'Category_id'=>$request->input('Category_id'),
-            'weight'=>$request->input('weight'),
-            'WUnit_id'=>$request->input('WUnit_id'),
-            'size'=>$request->input('size'),
-            'SUnit_id'=>$request->input('SUnit_id'),
-            'box_quantity'=>$request->input('box_quantity'),
+        $product = $Model::query()->create([
+            'product_name'=> $request->product_name,
+            'description'=> $request->description,
+            'ProducingCompany_id'=> $request->Producing_Company_id,
+            'Supplier_id'=>$request->supplier_id,
+            'UPC_code'=>$request->UPC_code,
+            'product_code'=>$request->product_code,
+            'Category_id'=>$request->Category_id,
+            'weight'=>$request->weight,
+            'WUnit'=>$request->WUnit,
+            'size'=>$request->size,
+            'SUnit'=>$request->SUnit,
+            'box_quantity'=>$request->box_quantity,
             'image'=>$image_url,
         ]);
         return response()->json([$product,201]);

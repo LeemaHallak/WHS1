@@ -5,117 +5,97 @@ namespace App\Http\Controllers;
 use App\Models\StoringLocations;
 use App\Http\Requests\StoreStoringLocationsRequest;
 use App\Http\Requests\UpdateStoringLocationsRequest;
+use App\Models\Manager;
 use Illuminate\Http\Request;
 
 class StoringLocationsController extends Controller
 {
-    public function showAvailableSections($operator)
+    private function querySections($operator, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        if ($manager->role_id !=3){
-            $employee = $manager->employee;
-        $branch_id = $employee->branch_id;
-        $location = StoringLocations::where('branch_id', $branch_id)
-                    ->whereNotNull('locationNum')
-                    ->where('available_quantity', $operator, 0)
-                    ->orderBy('available_quantity')
-                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
-        }
-        else {
-            $location = StoringLocations::whereNotNull('locationNum')
-                    ->where('available_quantity', $operator, 0)
-                    ->orderBy('available_quantity')
-                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
-        }
-        return $location;
+        return StoringLocations::when($branchId, fn($query) => $query->where('branch_id', $branchId))
+            ->whereNotNull('locationNum')
+            ->where('available_quantity', $operator, 0)
+            ->orderBy('available_quantity');
+    }
+
+    public function showAllSections($operator, $branchId = null)
+    {
+        $manager = new Manager();
+        $branchId = $manager->role() != 3 ? $manager->branch() : $branchId;
+
+        $sections = $this->querySections($operator, $branchId)->get();
+        return response()->json($sections, 200);
     }
 
     public function showStoringLocation()
     {
-        $availableSections = (new StoringLocationsController())->showAvailableSections('>');
-        $unAvailableSections = (new StoringLocationsController())->showAvailableSections('=');  
+        $availableSections = $this->querySections('>')->get();
+        $unAvailableSections = $this->querySections('=')->get();
+
         return response()->json([
-            'available sections'=>$availableSections,
-            'unavailable sections'=>$unAvailableSections,
-        ],http_response_code());
+            'available sections' => $availableSections,
+            'unavailable sections' => $unAvailableSections,
+        ], 200);
     }
 
     public function showMainSections()
     {
-        $manager = auth()->guard('manager-api')->user();
-        if ($manager->role_id !=3){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
-        }
-        $Sections = StoringLocations::when($branchId, function($query) use ($branchId){
-            $query->where('branch_id', $branchId);
-        })->whereNotNull('locationNum');
+        $manager = new Manager();
+        $branchId = $manager->role() != 3 ? $manager->branch() : null;
 
-        $availableSections = $Sections
-        ->where('available_quantity', '>', 0)
-        ->orderBy('available_quantity')
-        ->distinct()
-        ->pluck('main_section');
+        $availableSections = $this->querySections('>', $branchId)
+            ->distinct()
+            ->pluck('main_section');
 
-        $unAvailable = StoringLocations::when($branchId, function($query) use ($branchId){
-            $query->where('branch_id', $branchId);
-        })->whereNotNull('locationNum')
-        ->where('available_quantity', '=', 0)
-        ->distinct()
-        ->pluck('main_section');
-
-        $unAvailableSections = $unAvailable->diff($availableSections)->values()->toArray();    
+        $unAvailableSections = $this->querySections('=', $branchId)
+            ->distinct()
+            ->pluck('main_section')
+            ->diff($availableSections)
+            ->values()
+            ->toArray();
 
         return response()->json([
-            'available sections'=>$availableSections,
-            'unavailable sections'=>$unAvailableSections,
-        ],http_response_code());
+            'available sections' => $availableSections,
+            'unavailable sections' => $unAvailableSections,
+        ], 200);
     }
 
-    public function showSections($mainSection)
+    public function showSections($mainSection, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $employee = $manager->employee;
-        $branch_id = $employee->branch_id;
-        $location = StoringLocations::where('branch_id', $branch_id)
-                    ->where('main_section', $mainSection)
-                    ->whereNotNull('locationNum')
-                    ->where('available_quantity', '>', 0)
-                    ->orderBy('available_quantity')
-                    ->get(['locationNum', 'total_quantity', 'available_quantity']);
-        return response()->json($location, http_response_code());
+        $user = auth()->guard('manager-api')->user();
+        $branchId = $branchId ?? ($user->employee->branch_id );
+    
+        $location = $this->querySections('>', $branchId = null)
+            ->where('main_section', $mainSection)
+            ->get(['locationNum', 'total_quantity', 'available_quantity']);
+    
+        return response()->json($location, 200);
     }
+    
 
     public function showDetails($id)
     {
         $locationDetails = StoringLocations::find($id);
-        return response()->json([
-            'data'=>$locationDetails,
-            'status code'=>http_response_code(),
-        ]);
+        return response()->json(['data' => $locationDetails], 200);
     }
 
     public function store(Request $request)
     {
         $main_section = $request->main_section;
-        $section = $request->section ;
-        $branch_id = $request->branch_id ;
+        $section = $request->section;
+        $branch_id = $request->branch_id;
 
-        $main_sectionString = strval($main_section);
-        $sectionString = strval($section);
-        $locationNum = $main_sectionString."-".$sectionString;
+        $locationNum = "$main_section-$section";
 
         $location = StoringLocations::query()->create([
-            'main_section'=> $main_section,
-            'section'=>$section,
-            'branch_id'=>$branch_id,
-            'total_quantity'=> $request->total_quantity,
-            'available_quantity'=> $request->available_quantity,
-            'locationNum'=> $locationNum ,
+            'main_section' => $main_section,
+            'section' => $section,
+            'branch_id' => $branch_id,
+            'total_quantity' => $request->total_quantity,
+            'available_quantity' => $request->available_quantity,
+            'locationNum' => $locationNum,
         ]);
-        return response()->json($location->locationNum);
-    
+
+        return response()->json($location->locationNum, 201);
     }
-
-
 }

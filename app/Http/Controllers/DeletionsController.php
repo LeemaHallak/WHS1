@@ -15,6 +15,7 @@ use App\Models\ProducingCompany;
 use App\Models\StoringLocations;
 use App\Models\BranchesEquipments;
 use App\Http\Controllers\Controller;
+use App\Models\BranchesEquipment;
 use App\Models\Category;
 use App\Models\Equipment;
 use App\Models\Product;
@@ -24,7 +25,7 @@ class DeletionsController extends Controller
 {
     public function RemoveBranchEquipment($id)
     {
-        BranchesEquipments::query()->find($id)->delete();
+        BranchesEquipment::query()->find($id)->delete();
         return Response::HTTP_OK;
     }
 
@@ -58,9 +59,9 @@ class DeletionsController extends Controller
         return Response::HTTP_OK;
     }
     
-    public function RemoveLocation($main, $section)
+    public function RemoveLocation($id)
     {
-        StoringLocations::query()->where('main_section', $main)->Where('section', $section)->delete();
+        StoringLocations::query()->find($id)->delete();
         return Response::HTTP_OK;
     }
 

@@ -29,12 +29,16 @@ use App\Http\Controllers\BranchesProductsController;
 use App\Http\Controllers\ProducingCompanyController;
 use App\Http\Controllers\StoringLocationsController;
 use App\Http\Controllers\BranchesCustomersController;
+use App\Http\Controllers\InnerTransactionController;
 use App\Models\Category;
+use App\Models\Manager;
+use Illuminate\Support\Facades\Auth;
 
-Route:: prefix('/managers')->group( function (){ 
+Route:: prefix('/managers')->group( function (){
     Route::post('/register',[EmployeeController::class, 'register']);
     Route::post('/login',[ManagerController::class, 'LogIn']);
     Route::group( ['middleware' => ['auth:manager-api','scopes:manager'] ],function(){
+    Route::get('/branch', [ManagerController::class, 'branch']);
         Route::post('/logout',[ManagerController::class, 'LogOut']);
         Route:: prefix('/show')->group( function (){
             Route::controller(BranchController::class)->group(function(){
@@ -69,26 +73,33 @@ Route:: prefix('/managers')->group( function (){
                 Route::get('/sectionLocation/{mainSection}', 'showSections');
                 Route::get('/locationDetails/{id}', 'showDetails');
                 Route::get('/mainSections', 'showMainSections');
-                Route::get('/availableSections/{operator}', 'showAvailableSections');
+                Route::get('/allSections/{operator}', 'showAllSections');
             });
+            Route::controller(EmployeeController::class)->group(function(){
+                Route::get('/EmployeesDetails/{emp_id}', 'showDetails');
+                Route::get('/BranchManagers/{role}/{branch?}', 'ShowBranchesManagers');
+                Route::get('/allManagers/{id?}', 'ShowAllBranchesManagers');
+                Route::get('/employees', 'ShowEmployees');
+                Route::get('/BranchEmployees/{id}','ShowBranchesEmployee');
+            });
+            Route::controller(ProductController::class)->group(function(){
+                Route::get('/CatProducts/{category_id}', 'CatProducts');
+                Route::get('/allProducts','AllProducts');
+                Route::get('showProductDetails/{id}','showProductDetails');
+            });
+            Route::get('showOrderLists/{id?}',[OrderListController::class,'showOrderLists']);
+            Route::get('showOrderProducts/{Order_list_id}',[OrderProductsController::class,'showOrderProducts']);
+            Route::get('/costs/{type?}', [CostController::class, 'ShowCosts']); //N
+            Route::get('/innerTransactions/{sourceBranchId?}', [InnerTransactionController::class, 'ShowInnerTransaction']); //N
             Route::get('/ProducingCompanies',[ProducingCompanyController::class, 'ShowProducingCompanies']);
-            Route::get('/CatProducts/{category_id}',[ProductController::class, 'CatProducts']);
-            Route::get('/allProducts',[ProductController::class,'AllProducts']);
             Route::get('/equipmentFixes/{equipment_id}', [EquipmentFixController::class, 'showEquipmentsFixes' ]);
-            Route::get('/employees/{id}',[EmployeeController::class, 'ShowBranchesEmployee']);
             Route::get('/units', [UnitController::class, 'showUnits']);
             Route::get('/showShipments',[ShipmentController::class,'showShipments']);
             Route::get('/ShipmentDetails/{id}',[ShipmentController::class,'ShipmentDetails']);
             Route::get('/requests', [Approve::class, 'showRequests']);
-            Route::get('/BranchManagers/{role_id}/{branch_id?}',[EmployeeController::class, 'ShowBranchesManagers']);
         });
         Route::prefix('/Add')->group(function(){
-            Route::post('/assistants',[EmployeeController::class, 'addAK']);  //define, Gate
-            Route::post('/customer',[UserController::class, 'AddCustomer']);  //define, Gate
             Route::post('/units', [UnitController::class, 'addUnits']);
-        });
-        Route::prefix('/edit')->group(function(){
-            Route::post('/editShipment/{id}',[ShipmentController::class, 'editShipment']);
         });
         Route::controller(Approve::class)->group(function(){
             Route::post('/update/{requet_id}', 'updateState');

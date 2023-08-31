@@ -14,11 +14,10 @@ class CostController extends Controller
 {
     public function addCost(Request $request)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branch_id = $employee->branch_id;
+            $branchId = $manager->branch();
             $managerId = Auth::id();
         }
         else if($role == 3){
@@ -30,16 +29,16 @@ class CostController extends Controller
                 ]);
             }
         }
-        $addCost = Cost::query()->create([
-            'branch_id'=> $branchId,
+        $cost = Cost::query()->create([
             'manager_id'=> $managerId,
             'content'=>$request->content,
             'date'=>$request->date,
             'cost'=>$request->cost,
         ]);
+        $cost->branch_id = $branchId;
 
         return response()->json([
-            'data'=>$addCost,
+            'data'=>$cost,
             'status code'=>http_response_code(),
         ]);
     }
@@ -48,16 +47,15 @@ class CostController extends Controller
     {
         $costs = Cost::query();
         if($type == 'branch'){
-            $manager = auth()->guard('manager-api')->user();
-            $role = $manager->role_id;
+            $$manager = new Manager();
+            $role = $manager->role();
             if($role == 1){
-                $employee = $manager->employee;
-                $branch_id = $employee->branch_id;
+                $branchId = $manager->branch();
             }
             else if($role == 3){
-                $branch_id = $request->branch_id;
+                $branchId = $request->branch_id;
             }
-            $costs = $costs->where('branch_id', $branch_id)->get();
+            $costs = $costs->where('branch_id', $branchId)->get();
         }
         elseif($type == 'mine'){
             $costs = $costs->where('manager_id', Auth::id())->get();

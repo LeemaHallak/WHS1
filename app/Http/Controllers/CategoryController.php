@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\BranchesProducts;
 use App\Models\Category;
-use App\Models\CategoryAssis;
+use App\Models\CategoryApprove;
+use App\Models\Manager;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Cjmellor\Approval\Models\Approval;
@@ -23,8 +24,8 @@ class CategoryController extends Controller
 
     public function ShowParentsCategories(Request $request)
     {
-        $id = $request->input('id');
-        $categories = Category::find($id);
+        $categoryId = $request->input('id');
+        $categories = Category::find($categoryId);
         $parent = $categories->parent;
         $ParentsWithIcons = $parent->load('icons');
         return response()->json([
@@ -33,38 +34,26 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function ShowChildrenCategories($branch_id, $category_id)
+    public function ShowChildrenCategories($branchId, $categoryId)
     {
-        $products = (new BranchesProductsController)->BranchesCatProducts($branch_id, $category_id);
-        $categories = Category::find($category_id);
+        $products = (new BranchesProductsController)->BranchesCatProducts($branchId, $categoryId);
+        $categories = Category::find($categoryId);
         $children = $categories->children;
         if (!$products)
         {
-            $category = Category::find($category_id);
+            $category = Category::find($categoryId);
             $cats_products = $category->barnchesproducts()->get()->groupBy('branch_id');
             return response()->json([ 
                 'data'=>$cats_products,
                 'status code'=>200,
             ]);
         }
-        if ($children->isEmpty())
-        {
-            $message = false;
-            return response()->json([
-                'massage'=> $message, 
-                'data'=>$products,
-                'status code'=>200,
-            ]);
-        }
-        else if ($children->isNotEmpty()) {
-            $message = true;
-            $childrenWithIcons = $children->load('icons');
-            return response()->json([
-                'massage'=> $message, 
-                'data'=>$children,
-                'status code'=>200,
-            ]);  
-        }
+        $responseData = $children->isEmpty()
+            ? ['message' => false, 'data' => $products]
+            : ['message' => true, 'data' => $children->load('icons')];
+
+        return response()->json($responseData, 200);
+
     }
 
     public function GeneralChildrenCategories($category_id)
@@ -72,25 +61,12 @@ class CategoryController extends Controller
         $products = (new ProductController)->CatProducts($category_id);
         $categories = Category::find($category_id);
         $children = $categories->children;
-        if ($children->isEmpty())
-        {
-            $massage = false;
-            return response()->json([
-                'message'=> $massage, 
-                'data'=>$products,
-                'status code'=>200,
-            ]);
-        }
-        else if ($children->isNotEmpty()) {
-            $message = true;
-            $childrenWithIcons = $children->load('icons');
         
-            return response()->json([
-                'message' => $message,
-                'data' => $childrenWithIcons,
-                'status code' => 200,
-            ]);
-        }
+        $responseData = $children->isEmpty()
+            ? ['message' => false, 'data' => $products]
+            : ['message' => true, 'data' => $children->load('icons')];
+
+        return response()->json($responseData, 200);
     }
 
     public function ShowAllChildrenCategories(Request $request,$branch_id, $category_id)
@@ -99,12 +75,12 @@ class CategoryController extends Controller
         $children = $categories->allChildren;
         $childrenWithIcons = $children->load('icons');
         return response()->json([
-            'data'=>$children,
+            'data'=>$childrenWithIcons,
             'status code'=>200,
         ]);
     }
 
-    public function ShowRootsCategories(Request $request)
+    public function ShowRootsCategories()
     {
         $categories = Category::where('parent_id', null)->withAggregate('icons', 'icon')->get();
         return response()->json([
@@ -115,8 +91,9 @@ class CategoryController extends Controller
     
     public function AddCat(Request $request)
     {        
-        $Model = auth()->guard('manager-api')->user()->role_id == 3
-            ? Category::class : CategoryAssis::class;
+        $manager = new Manager();
+        $Model = $manager->role() == 3
+            ? Category::class : CategoryApprove::class;
         $Category = $Model::query()->create([
             'category_name'=> $request->input('category_name'),
             'parent_id'=>$request->input('parent_id'),
@@ -127,13 +104,14 @@ class CategoryController extends Controller
 
     public function editCategory(Request $request, int $id): JsonResponse
     {
-        $Model = auth()->guard('manager-api')->user()->role_id == 3
-            ? Category::class : CategoryAssis::class;
+        $manager = new Manager();
+        $Model = $manager->role() == 3
+            ? Category::class : CategoryApprove::class;
         $category = $Model::find($id);
         if (!$category) {
             return response()->json([
                 'error' => 'category not found'
-            ], 404);
+            ], 400);
         }
         $validatedData = $request->validate([
             'category_name' => 'nullable',
@@ -143,6 +121,6 @@ class CategoryController extends Controller
         $category->save();
         return response()->json([
             'message' => 'category updated successfully'
-        ]);
+        ], 200);
     }
 }

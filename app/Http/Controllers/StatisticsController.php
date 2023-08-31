@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\BranchesEquipment;
 use App\Models\BranchesEquipments;
 use App\Models\BranchesProducts;
 use App\Models\Category;
@@ -11,6 +12,7 @@ use App\Models\Employee;
 use App\Models\EquipmentFix;
 use App\Models\Financial;
 use App\Models\InnerTransaction;
+use App\Models\Manager;
 use App\Models\Order;
 use App\Models\OrderList;
 use App\Models\OrderProducts;
@@ -24,11 +26,10 @@ class StatisticsController extends Controller
 {
     public function CostsStatistics($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+            $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         $Costs = Cost::query();  
         if($branchId){
@@ -38,29 +39,28 @@ class StatisticsController extends Controller
             $dailyCosts = $Costs->groupBy('date')
             ->selectRaw('date, SUM(cost) as total_cost')
             ->get();
-            return $dailyCosts;
+            return response()->json([$dailyCosts, 200]);
         }
         elseif($type == 'monthly'){
             $monthlyCosts= $Costs->selectRaw('MONTH(date) as month, YEAR(date) as year, SUM(cost) as total_cost')
             ->groupBy('month', 'year')
             ->get();
-            return $monthlyCosts;
+            return response()->json([$monthlyCosts,200]);
         }
         elseif($type == 'yearly'){
             $yearlyCosts= $Costs->selectRaw('YEAR(date) as year, SUM(cost) as total_cost')
             ->groupBy('year')
             ->get();
-            return $yearlyCosts;
+            return response()->json([$yearlyCosts, 200]);
         }
     }
 
     public function InProductsStatistics($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         $Products = BranchesProducts::query();  
         if($branchId){
@@ -72,7 +72,7 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('day')
             ->get();
-            return $dailyInProducts;
+            return response()->json([$dailyInProducts, 200]);
         }
         elseif($type == 'monthly'){
             $monthlyInProducts= $Products
@@ -81,7 +81,7 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('month', 'year')
             ->get();
-            return $monthlyInProducts;
+            return response()->json([$monthlyInProducts, 200]);
         }
         elseif($type == 'yearly'){
             $yearlyInProducts= $Products
@@ -89,52 +89,53 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('year')
             ->get();
-            return $yearlyInProducts;
+            return response()->json([$yearlyInProducts, 200]);
         }
     }
-
-    public function InProductsByProducts($type, $product_id, $date, $branchId = null)
+    public function InProductsByProducts($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
-
-        if ($role == 1) {
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+        $manager = new Manager();
+        $role = $manager->role();
+        if($role == 1){
+            $branchId = $manager->branch();
         }
-        $Products = BranchesProducts::where('product_id', $product_id);
+        $Products = BranchesProducts::where('branch_id', $branchId);
 
-        $ProductsQ = $Products->when($branchId, function ($query) use ($branchId) {
-            return $query->where('branch_id', $branchId);
-        });
-
-        if ($date) {
-            if ($type == 'daily') {
-                $Productss = $ProductsQ->whereDate('date_in', $date);
-            } elseif ($type == 'monthly') {
-                $Productss = $ProductsQ->whereYear('date_in', date('Y', strtotime($date)))
-                        ->whereMonth('date_in', date('m', strtotime($date)));
-            } elseif ($type == 'yearly') {
-                $Products = $ProductsQ->whereYear('date_in', $date);
-            }
-        }
-
-        $result = $Productss->selectRaw('date_in as day, product_id as product,
+        if($type == 'daily'){
+            $dailyInProducts = $Products
+            ->selectRaw('date_in as day, product_id as product,
                         SUM(in_quantity) as total_quantity')
-                    ->groupBy('day', 'product_id')
-                    ->get();
-
-        return $result;
-
+            ->groupBy('day', 'product_id')
+            ->get();
+            return response()->json([$dailyInProducts, 200]);
+        }
+        elseif($type == 'monthly'){
+            $monthlyInProducts= $Products
+            ->selectRaw('MONTH(date_in) as month,
+                        YEAR(date_in) as year,
+                        product_id as product,
+                        SUM(in_quantity) as total_quantity')
+            ->groupBy('month', 'year', 'product_id')
+            ->get();
+            return response()->json([$monthlyInProducts, 200]);
+        }
+        elseif($type == 'yearly'){
+            $yearlyInProducts= $Products
+            ->selectRaw('YEAR(date_in) as year,
+                        product_id as product,
+                        SUM(in_quantity) as total_quantity')
+            ->groupBy('year', 'product_id')
+            ->get();
+            return response()->json([$yearlyInProducts, 200]);
+        }
     }
 
     public function InProductsBySupplier($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         $Products = BranchesProducts::query();  
         if($branchId){
@@ -146,7 +147,7 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('day',  'supplier')
             ->get();
-            return $dailyInProducts;
+            return response()->json([$dailyInProducts, 200]);
         }
         elseif($type == 'monthly'){
             $monthlyInProducts= $Products
@@ -156,7 +157,7 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('month', 'year', 'supplier')
             ->get();
-            return $monthlyInProducts;
+            return response()->json([$monthlyInProducts, 200]);
         }
         elseif($type == 'yearly'){
             $yearlyInProducts= $Products
@@ -165,21 +166,20 @@ class StatisticsController extends Controller
                         SUM(in_quantity) as total_quantity')
             ->groupBy('year', 'supplier')
             ->get();
-            return $yearlyInProducts;
+            return response()->json([$yearlyInProducts, 200]);
         }
     }
 
     public function OutProductsStatistics($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
 
         if($type == 'daily'){
-            $data = Order::select([
+            $dailyData = Order::select([
                 DB::raw('DATE(orders.order_date) as day'),
                 DB::raw('SUM(order_products.quantity) as all_quantity, BranchesProducts_id as product')
                 ])->join('order_lists','orders.OrderList_id','=','order_lists.id')
@@ -191,10 +191,10 @@ class StatisticsController extends Controller
                 ->groupBy('product')
                 ->orderBy('day', 'asc')
                 ->get();
-                return $data;
+                return response()->json([$dailyData, 200]);
         }
         elseif($type == 'monthly'){
-            $data = Order::select([
+            $monthlyData = Order::select([
                 DB::raw('DATE_FORMAT(orders.order_date, "%m") as month'),
                 DB::raw('DATE_FORMAT(orders.order_date, "%Y") as year'),
                 DB::raw('SUM(order_products.quantity) as all_quantity, BranchesProducts_id as product')
@@ -208,10 +208,10 @@ class StatisticsController extends Controller
                 ->orderBy('year','asc')
                 ->orderBy('month','asc')
                 ->get();
-                return $data;
+                return response()->json([$monthlyData, 200]);
         }
         elseif($type == 'yearly'){
-            $data = Order::select([
+            $yearlyData = Order::select([
                 DB::raw('DATE_FORMAT(orders.order_date, "%Y") as year'),
                 DB::raw('SUM(order_products.quantity) as all_quantity, BranchesProducts_id as product')
                 ])->join('order_lists','orders.OrderList_id','=','order_lists.id')
@@ -223,21 +223,20 @@ class StatisticsController extends Controller
                 ->groupBy('product')
                 ->orderBy('year','asc')
                 ->get();
-                return $data;
+                return response()->json([$yearlyData, 200]);
         }
     }
 
     public function ordersIncomings($type, $branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
 
         if($type == 'daily'){
-            $data = Order::select([
+            $dailyData = Order::select([
                 DB::raw('DATE(orders.order_date) as day'),
                 DB::raw('SUM(order_lists.order_earnings) as total_cost')
                 ])->join('order_lists','orders.OrderList_id','=','order_lists.id')
@@ -247,10 +246,10 @@ class StatisticsController extends Controller
                 ->groupBy('day')
                 ->orderBy('day', 'asc')
                 ->get();
-                return $data;
+                return response()->json([$dailyData, 200]);
         }
         elseif($type == 'monthly'){
-            $data = Order::select([
+            $monthlyData = Order::select([
                 DB::raw('DATE_FORMAT(orders.order_date, "%m") as month'),
                 DB::raw('DATE_FORMAT(orders.order_date, "%Y") as year'),
                 DB::raw('SUM(order_lists.order_earnings) as total_cost')
@@ -262,10 +261,10 @@ class StatisticsController extends Controller
                 ->orderBy('year','asc')
                 ->orderBy('month','asc')
                 ->get();
-                return $data;
+                return response()->json([$monthlyData, 200]);
         }
         elseif($type == 'yearly'){
-            $data = Order::select([
+            $yearlyData = Order::select([
                 DB::raw('DATE_FORMAT(orders.order_date, "%Y") as year'),
                 DB::raw('SUM(order_lists.order_earnings) as total_cost')
                 ])->join('order_lists','orders.OrderList_id','=','order_lists.id')
@@ -275,17 +274,16 @@ class StatisticsController extends Controller
                 ->groupBy('year')
                 ->orderBy('year','asc')
                 ->get();
-                return $data;
+                return response()->json([$yearlyData, 200]);
         }
     }
 
     public function earningsStatistics($branchId = null)
     {
-        $manager = auth()->guard('manager-api')->user();
-        $role = $manager->role_id;
+        $manager = new Manager();
+        $role = $manager->role();
         if($role == 1){
-            $employee = $manager->employee;
-            $branchId = $employee->branch_id;
+            $branchId = $manager->branch();
         }
         $TotalCosts = Cost::query()->when($branchId, function ($query) use ($branchId) {
             return $query->where('branch_id', $branchId);
@@ -294,7 +292,7 @@ class StatisticsController extends Controller
         ->groupBy('MONTH(date)')
         ->get();
 
-        $totalEquipmentCosts = BranchesEquipments::query()->when($branchId, function ($query) use ($branchId) {
+        $totalEquipmentCosts = BranchesEquipment::query()->when($branchId, function ($query) use ($branchId) {
             return $query->where('branch_id', $branchId);
         })
         ->selectRaw('MONTH(date_in), SUM(cost) as total_cost')
@@ -344,14 +342,14 @@ class StatisticsController extends Controller
         }
 
         return response()->json([
-            // 'branch'=> $branchId,
-            // 'costs' => $totalCosts,
-            // 'equipment costs'=>$totalEquipmentCosts,
-            // 'Equipment fixing costs'=>$totalFixingCosts,
-            // 'transactions costs'=>$transactionCosts,
-            // 'total costs'=>$totalCosts,
-            // 'orders'=>$totalOrders,
-            // 'total salaries'=> $totalSalaries,
+            'branch'=> $branchId,
+            'costs' => $totalCosts,
+            'equipment costs'=>$totalEquipmentCosts,
+            'Equipment fixing costs'=>$totalFixingCosts,
+            'transactions costs'=>$transactionCosts,
+            'total costs'=>$totalCosts,
+            'orders'=>$totalOrders,
+            'total salaries'=> $totalSalaries,
             'data'=>$earningsByMonth,
         ]);
     }
@@ -370,12 +368,12 @@ class StatisticsController extends Controller
         }])
         ->orderBy('total_quantity', 'desc')
         ->get();
-    return $mostOrderedCategories;
+    return response()->json([$mostOrderedCategories, 200]);
     }
 
     public function BestCatEarnings($year, $month = null , $branchId = null)
     {   
-        $mostOrderedCategoriesByDate = Category::withCount(['barnchesproducts as order_cost' => function ($query) use ($year, $month) {
+        $mostEarningCategories = Category::withCount(['barnchesproducts as order_cost' => function ($query) use ($year, $month) {
                 $query->join('order_products', 'branches_products.id', '=', 'order_products.BranchesProducts_id')
                     ->join('order_lists', 'order_products.OrderList_id', '=', 'order_lists.id')
                     ->join('orders', 'order_lists.id', '=', 'orders.OrderList_id')
@@ -388,12 +386,12 @@ class StatisticsController extends Controller
         ->orderBy('order_cost', 'desc')
         ->get();
         
-        return $mostOrderedCategoriesByDate;
+        return response()->json([$mostEarningCategories, 200]);
     }
 
     public function BestBranch($year, $month = null)
     {   
-        $mostActiveBranchesByMonth = Branch::withSum(['orderLists' => function ($query)  use ($year, $month)    {
+        $mostActiveBranch = Branch::withSum(['orderLists' => function ($query)  use ($year, $month)    {
             $query->join('orders', 'orders.orderList_id', '=','order_lists.id')
                 ->whereYear('orders.order_date', $year) 
                 ->when($month, function ($query) use ($month) {
@@ -402,7 +400,7 @@ class StatisticsController extends Controller
         }], 'order_quantity')
         ->orderBy('order_lists_sum_order_quantity', 'desc')
         ->first();
-        return $mostActiveBranchesByMonth;
+        return response()->json([$mostActiveBranch, 200]);
 
 
     }
@@ -418,6 +416,6 @@ class StatisticsController extends Controller
                 })
                 ->orderBy('order_quantity_sum', 'desc')
                 ->first();
-        return $mostActiveCustomer;
+        return response()->json([$mostActiveCustomer, 200]);
     }
 }

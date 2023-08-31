@@ -28,7 +28,7 @@ class EmployeeController extends Controller
         $this->validate($request,[
             'employee_name'=> 'required | string',
             'email'=>'required | email',
-            'phone_number'=>'required ',
+            'phone_number'=>'required | integer ',
             'salary' => 'required',
             'position'=> 'required',
         ]);
@@ -61,6 +61,7 @@ class EmployeeController extends Controller
             'manager data'=>$manager,
             'typeToken' => 'Bearer',
             'token' => $accessToken->accessToken,
+            201
         ];
     }
 
@@ -81,7 +82,7 @@ class EmployeeController extends Controller
             if ($CheckManager){
                 return response()->json([
                     'message'=>'manager exists'
-                ]);
+                ], 400);
             }
 
             $manager = (new EmployeeController)->register($request, $role_id, $branch_id , $is_manager, $password);
@@ -95,9 +96,8 @@ class EmployeeController extends Controller
             else
             {
                 return response()->json([
-                    'message'=> 'the roles are 1 or 2',
-                    'status code'=> http_response_code(),
-                ]);
+                    'message'=> 'the roles are 1 or 2'
+                ], 400);
             }
     }
 
@@ -111,7 +111,7 @@ class EmployeeController extends Controller
         if ($role_id == 3 ){
             return response()->json([
                 'message'=>'there is a general manager already'
-            ]);
+            ], 400);
         }
 
         else{
@@ -120,7 +120,7 @@ class EmployeeController extends Controller
             $this->validate($request,[
                 'employee_name'=> 'required | string',
                 'email'=>'required | email',
-                'phone_number'=>'required ',
+                'phone_number'=>'required | integer',
                 'address'=>'string',
                 'salary' => 'required',
             ]);
@@ -139,25 +139,22 @@ class EmployeeController extends Controller
                 'is_manager'=> $is_manager,
             ]);
             return response()->json([
-                'data' => $employee,
-                'status code'=>http_response_code()
-                ]);
+                'data' => $employee
+                ], 201);
         }
         elseif ($is_manager == 1){
 
             $manager = (new EmployeeController)->addAK($request, $role_id, $branch_id , $is_manager, $password);
                 return response()->json([
-                    'data'=>$manager,
-                    'status code' => http_response_code()
-                ]);
+                    'data'=>$manager
+                ], 201);
 
         }
         else
         {
             return response()->json([
-                'message'=>'the roles are 1 or 2 or 3',
-                'status code'=>http_response_code()
-            ]);
+                'message'=>'the roles are 1 or 2 or 3'
+            ], 400);
         }
         }
         
@@ -166,87 +163,73 @@ class EmployeeController extends Controller
     public function ShowEmployees()
     {
         $employees = Employee::all();
-        if ($employees->isEmpty()) {
-            return response()->json([
-                'message' => 'no employees to show',
-                'status code'=>http_response_code(),
-            ]);
-        }
-        return response()->json([
-            'data'=>$employees,
-            'status code'=> http_response_code(),
-        ]);
+        
+        $responseData = $employees->isEmpty()
+            ? ['message' => 'there is no employees', 204]
+            : ['data' => $employees, 200];
+
+        return response()->json($responseData);
     }
 
-    public function ShowBranchesEmployee($id)
+    public function ShowBranchesEmployee($branchId)
     {
-        $branch = Employee::where('branch_id',$id)->get();
-        if ($branch->isEmpty()) {
-            return response()->json([
-                'message' => 'no employyees',
-            'status code' => http_response_code()
-            ],http_response_code());
-        }
-        return response()->json([
-            'data' => $branch,
-            'status code' => http_response_code()
-        ]);
+        $branchEmployees = Employee::where('branch_id',$branchId)->get();
+        
+        $responseData = $branchEmployees->isEmpty()
+            ? ['message' => 'there is no employees in this branch', 204]
+            : ['data' => $branchEmployees, 200];
+
+        return response()->json($responseData);
 
     }
 
-    public function ShowBranchesManagers($role_id, $branch_id = null )
+    public function ShowBranchesManagers($roleId, $branchId = null )
     {
-        if($branch_id){
-            $branch = Branch::find($branch_id);
-            $managers = $branch->managers()->where('role_id', $role_id)->with('employee')->get();
+        if($branchId){
+            $branch = Branch::find($branchId);
+            $managers = $branch->managers()->where('role_id', $roleId)->with('employee')->get();
         }
-        elseif (!$branch_id){
-            $managers = Manager::where('role_id', $role_id)->with('employee')->get()->groupBy(function ($manager) {
+        elseif (!$branchId){
+            $managers = Manager::where('role_id', $roleId)->with('employee')->get()->groupBy(function ($manager) {
                 return $manager->employee->branch_id ;
             });
         }
-        if ($managers->isEmpty()) {
-            return response()->json([
-                'message' => 'no employyees',
-            'status code' => http_response_code()
-            ],http_response_code());
-        }
-        return [
-            'data' => $managers,
-            'status code' => http_response_code()
-        ];
+        
+        $responseData = $managers->isEmpty()
+            ? ['message' => 'there is no managers', 204]
+            : ['data' => $managers, 200];
+
+        return response()->json($responseData);
     }
 
-    public function ShowAllBranchesManagers($branch_id = null)
+    public function ShowAllBranchesManagers($branchId = null)
     {
-        $keepers = (new EmployeeController)->ShowBranchesManagers( 1, $branch_id );
-        $assistants = (new EmployeeController)->ShowBranchesManagers(2, $branch_id);
+        $keepers = (new EmployeeController)->ShowBranchesManagers( 1, $branchId );
+        $assistants = (new EmployeeController)->ShowBranchesManagers(2, $branchId);
         return (!$keepers && !$assistants) 
-            ? response()->json(['message' => 'no employyees',],http_response_code())
+            ? response()->json(['message' => 'no employyees',],204)
                 : response()->json([
                     'keepers' => $keepers,
                     'assistants'=>$assistants,
-                ],http_response_code());
+                ],200);
     }
 
-    public function showDetails($emp_id)
+    public function showDetails($emplyeeId)
     {
-        $EmployeeDetails = Employee::where('id', $emp_id);
+        $EmployeeDetails = Employee::where('id', $emplyeeId);
         if ($EmployeeDetails->value('is_manager') == 1){
-            $role = Manager::where('employee_id', $emp_id)->first('role_id');
+            $role = Manager::where('employee_id', $emplyeeId)->first('role_id');
             $EmployeeDetails =  $EmployeeDetails->first();
             return response()->json([
                 'data'=>$EmployeeDetails,
-                'role'=>$role,
-                'status code'=>200,
-            ]);
+                'role'=>$role
+            ], 200);
         }
         else{
             $EmployeeDetails = $EmployeeDetails->first();
             return response()->json([
-                'data'=>$EmployeeDetails,
-                'status code'=>200,
-            ]);
+                'data'=>$EmployeeDetails
+            ], 200);
         }
     }
     
