@@ -13,6 +13,7 @@ class BranchController extends Controller
         $branches = Branch::with('address')->get();
         
         return response()->json([
+            'message'=>'this is your branches',
             'data'=>$branches
         ], Response::HTTP_FOUND);
     }
